@@ -792,6 +792,10 @@ dialog::backdrop {
     overflow-x: auto;
   }
 
+  .header-search {
+    display: none;
+  }
+
   .main-nav a {
     white-space: nowrap;
   }
