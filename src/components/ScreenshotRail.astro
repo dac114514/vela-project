@@ -29,7 +29,11 @@ const { screenshots, title } = Astro.props;
           data-src={assetHref(src)}
           aria-label={`放大第 ${index + 1} 张截图`}
         >
-          <img src={assetHref(src)} alt={`${title}截图 ${index + 1}`} loading="lazy" />
+          <img
+            src={assetHref(src)}
+            alt={`${title}图片 ${index + 1}`}
+            loading={index === 0 ? 'eager' : 'lazy'}
+          />
         </button>
       ))}
     </div>
