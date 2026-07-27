@@ -6,9 +6,9 @@ export const siteInfo = {
   copyright: `© ${new Date().getFullYear()} 蓝桥工作室`,
   author: {
     name: '纯水机',
-    role: '独立作者',
+    role: '开发者',
     avatar: '',
-    bio: '蓝桥工作室作品作者，专注于轻量小程序的设计与开发。',
+    bio: '蓝桥工作室室长，站长，独立开发者。',
     contacts: [] as Array<{ label: string; url: string }>
   }
 };
