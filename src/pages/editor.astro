@@ -1,6 +1,7 @@
 ---
+import { Copy, Download, FileText, Image, RotateCcw, Save, Settings } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { href } from '../lib/urls';
+import { assetHref, href } from '../lib/urls';
 ---
 
 <BaseLayout title="MDX 项目编辑器" description="生成蓝桥工作室作品项目文件。" noIndex>
@@ -13,16 +14,26 @@ import { href } from '../lib/urls';
           <h1>MDX 项目编辑器</h1>
           <p>填写信息后生成项目文件。当前版本不写入仓库，可复制或下载；未来可通过保存适配器接入后端。</p>
         </div>
-        <div class="editor-state">
-          <span></span>
-          静态安全模式
+        <div class="editor-heading-actions">
+          <button class="button button-secondary" type="reset" form="mdx-editor">
+            <RotateCcw size={17} aria-hidden="true" />恢复默认
+          </button>
+          <div class="editor-state">
+            <span></span>
+            静态安全模式
+          </div>
         </div>
       </div>
 
       <div class="editor-grid">
-        <form class="editor-form" data-editor-form>
+        <form
+          id="mdx-editor"
+          class="editor-form"
+          data-editor-form
+          data-base={href('/').replace(/\/$/, '')}
+        >
           <fieldset>
-            <legend>基本信息</legend>
+            <legend><Settings size={17} aria-hidden="true" />基本信息</legend>
             <label>作品名称<input name="title" required value="新作品" /></label>
             <label>文件名 slug<input name="slug" required value="new-project" pattern="[a-z0-9-]+" /></label>
             <label>分类目录<input name="category" required value="精品区" /></label>
@@ -33,22 +44,22 @@ import { href } from '../lib/urls';
           </fieldset>
 
           <fieldset>
-            <legend>图片与链接</legend>
-            <label class="full">图标路径<input name="icon" placeholder="/projects/项目名/icon.webp" /></label>
-            <label class="full">封面路径<input name="cover" placeholder="/projects/项目名/cover.webp" /></label>
+            <legend><Image size={17} aria-hidden="true" />图片与链接</legend>
+            <label>图标路径<input name="icon" value="/brand/mark.webp" /></label>
+            <label>封面路径<input name="cover" value="/brand/banner-light-16x9.webp" /></label>
             <label class="full">
               截图路径（每行一个）
-              <textarea name="screenshots" rows="4" placeholder="/projects/项目名/screenshot-1.webp"></textarea>
+              <textarea name="screenshots" rows="4">/brand/banner-light-16x9.webp</textarea>
             </label>
             <label>链接文字<input name="linkLabel" value="访问作品" /></label>
             <label>链接地址<input name="linkUrl" type="url" placeholder="https://example.com" /></label>
           </fieldset>
 
           <fieldset>
-            <legend>正文</legend>
+            <legend><FileText size={17} aria-hidden="true" />正文</legend>
             <label class="full">
               MDX 内容
-              <textarea name="body" rows="16">## 项目介绍
+              <textarea name="body" rows="12">## 项目介绍
 
 在这里填写作品介绍。即使只有一句话，也会完整显示在项目详情页。
 
@@ -61,18 +72,30 @@ import { href } from '../lib/urls';
         </form>
 
         <aside class="editor-output">
+          <div class="editor-card-preview">
+            <img data-preview-icon src={assetHref('/brand/mark.webp')} alt="" />
+            <div>
+              <span>项目卡片预览</span>
+              <strong data-preview-title>新作品</strong>
+              <p data-preview-description>请填写作品简介。</p>
+            </div>
+          </div>
           <div class="output-head">
             <div>
               <span class="eyebrow">实时生成</span>
               <strong data-output-path>精品区/new-project.mdx</strong>
             </div>
-            <button type="button" class="button button-secondary" data-copy-mdx>复制</button>
+            <button type="button" class="button button-secondary" data-copy-mdx>
+              <Copy size={16} aria-hidden="true" />复制
+            </button>
           </div>
           <pre><code data-mdx-output></code></pre>
           <div class="output-actions">
-            <button type="button" class="button button-primary" data-download-mdx>下载 MDX</button>
+            <button type="button" class="button button-primary" data-download-mdx>
+              <Download size={17} aria-hidden="true" />下载 MDX
+            </button>
             <button type="button" class="button button-secondary" data-provider-save disabled>
-              保存到后端
+              <Save size={17} aria-hidden="true" />保存到后端
             </button>
           </div>
           <p data-editor-feedback role="status" aria-live="polite"></p>
@@ -96,6 +119,9 @@ import { href } from '../lib/urls';
   const pathOutput = document.querySelector<HTMLElement>('[data-output-path]');
   const feedback = document.querySelector<HTMLElement>('[data-editor-feedback]');
   const providerButton = document.querySelector<HTMLButtonElement>('[data-provider-save]');
+  const previewIcon = document.querySelector<HTMLImageElement>('[data-preview-icon]');
+  const previewTitle = document.querySelector<HTMLElement>('[data-preview-title]');
+  const previewDescription = document.querySelector<HTMLElement>('[data-preview-description]');
   let currentContent = '';
   let currentPath = '';
 
@@ -141,9 +167,18 @@ import { href } from '../lib/urls';
     currentPath = `${category}/${slug}.mdx`;
     output.textContent = currentContent;
     pathOutput.textContent = currentPath;
+    if (previewTitle) previewTitle.textContent = title || '未命名作品';
+    if (previewDescription) {
+      previewDescription.textContent = String(data.get('description') ?? '') || '暂无简介';
+    }
+    if (previewIcon) {
+      const base = form.dataset.base ?? '';
+      previewIcon.src = icon.startsWith('/') ? `${base}${icon}` : icon || `${base}/brand/mark.webp`;
+    }
   };
 
   form?.addEventListener('input', update);
+  form?.addEventListener('reset', () => window.requestAnimationFrame(update));
   update();
 
   document.querySelector('[data-copy-mdx]')?.addEventListener('click', async () => {
@@ -191,6 +226,13 @@ import { href } from '../lib/urls';
     margin-bottom: 36px;
   }
 
+  .editor-heading-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+  }
+
   .editor-heading h1 {
     margin: 0;
     font-size: clamp(2.5rem, 7vw, 5.2rem);
@@ -227,7 +269,7 @@ import { href } from '../lib/urls';
 
   .editor-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+    grid-template-columns: minmax(0, 1fr) minmax(430px, 500px);
     align-items: start;
     gap: 24px;
   }
@@ -240,15 +282,18 @@ import { href } from '../lib/urls';
   fieldset {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 14px;
     border: 1px solid var(--line);
     border-radius: 22px;
-    padding: 24px;
+    padding: 20px;
     background: var(--surface);
     box-shadow: var(--shadow-small);
   }
 
   legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     padding: 0 8px;
     font-weight: 850;
   }
@@ -292,7 +337,7 @@ import { href } from '../lib/urls';
     top: 96px;
     border: 1px solid var(--line);
     border-radius: 22px;
-    padding: 20px;
+    padding: 18px;
     background: var(--surface);
     box-shadow: var(--shadow);
   }
@@ -305,13 +350,51 @@ import { href } from '../lib/urls';
     gap: 12px;
   }
 
+  .editor-card-preview {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    background: var(--surface-soft);
+  }
+
+  .editor-card-preview img {
+    width: 64px;
+    height: 64px;
+    border-radius: 15px;
+    object-fit: cover;
+  }
+
+  .editor-card-preview span {
+    display: block;
+    color: var(--brand-600);
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .editor-card-preview strong {
+    display: block;
+    margin-top: 2px;
+    font-size: 1.05rem;
+  }
+
+  .editor-card-preview p {
+    margin: 2px 0 0;
+    color: var(--ink-600);
+    font-size: 0.82rem;
+  }
+
   .output-head strong {
     display: block;
     word-break: break-all;
   }
 
   pre {
-    max-height: 620px;
+    max-height: 430px;
     margin: 18px 0;
     border: 1px solid var(--line);
     border-radius: 16px;
@@ -348,6 +431,12 @@ import { href } from '../lib/urls';
   @media (max-width: 640px) {
     .editor-heading {
       align-items: start;
+      flex-direction: column;
+    }
+
+    .editor-heading-actions {
+      width: 100%;
+      align-items: stretch;
       flex-direction: column;
     }
 

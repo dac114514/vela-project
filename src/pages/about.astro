@@ -1,4 +1,5 @@
 ---
+import { LayoutGrid, UserRound } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteInfo } from '../data/site';
 import { assetHref, href } from '../lib/urls';
@@ -30,7 +31,7 @@ import { assetHref, href } from '../lib/urls';
           : <span>{siteInfo.author.name.slice(0, 1)}</span>}
       </div>
       <div>
-        <span class="eyebrow">{siteInfo.author.role}</span>
+        <span class="eyebrow author-role"><UserRound size={16} aria-hidden="true" />{siteInfo.author.role}</span>
         <h2>{siteInfo.author.name}</h2>
         <p>{siteInfo.author.bio}</p>
         <div class="contact-list">
@@ -46,7 +47,9 @@ import { assetHref, href } from '../lib/urls';
     </div>
 
     <div class="about-actions">
-      <a class="button button-primary" href={href('/category/all')}>浏览全部作品</a>
+      <a class="button button-primary" href={href('/category/all')}>
+        <LayoutGrid size={17} aria-hidden="true" />浏览全部作品
+      </a>
     </div>
   </section>
 </BaseLayout>
@@ -95,11 +98,13 @@ import { assetHref, href } from '../lib/urls';
 
   .author-card {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 30px;
+    grid-template-columns: 96px 1fr;
+    align-items: center;
+    max-width: 760px;
+    gap: 22px;
     border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 32px;
+    border-radius: 22px;
+    padding: 22px;
     background: var(--surface);
     box-shadow: var(--shadow-small);
   }
@@ -107,12 +112,12 @@ import { assetHref, href } from '../lib/urls';
   .author-avatar {
     display: grid;
     place-items: center;
-    width: 160px;
-    height: 160px;
-    border-radius: 32px;
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
     background: var(--brand-600);
     color: white;
-    font-size: 4rem;
+    font-size: 2.6rem;
     font-weight: 900;
     overflow: hidden;
   }
@@ -125,7 +130,7 @@ import { assetHref, href } from '../lib/urls';
 
   .author-card h2 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.55rem;
   }
 
   .author-card p {
@@ -144,7 +149,14 @@ import { assetHref, href } from '../lib/urls';
   }
 
   .about-actions {
+    max-width: 760px;
     margin-top: 24px;
+  }
+
+  .author-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 
   @media (max-width: 640px) {
@@ -153,10 +165,10 @@ import { assetHref, href } from '../lib/urls';
     }
 
     .author-avatar {
-      width: 112px;
-      height: 112px;
-      border-radius: 25px;
-      font-size: 3rem;
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      font-size: 2.2rem;
     }
   }
 </style>

@@ -1,4 +1,5 @@
 ---
+import { Download, Image, Link2, MessageCircle, QrCode, Share2 } from '@lucide/astro';
 import { assetHref } from '../lib/urls';
 
 interface Props {
@@ -11,7 +12,9 @@ const { title, description, image = '/brand/banner-light-16x9.webp' } = Astro.pr
 const imageUrl = assetHref(image);
 ---
 
-<button class="button button-secondary" type="button" data-share-open>分享作品</button>
+<button class="button button-secondary" type="button" data-share-open>
+  <Share2 size={17} aria-hidden="true" />分享作品
+</button>
 
 <dialog
   class="share-dialog"
@@ -29,10 +32,10 @@ const imageUrl = assetHref(image);
   </div>
 
   <div class="share-tabs" role="tablist" aria-label="分享方式">
-    <button type="button" role="tab" aria-selected="true" data-share-tab="link">链接</button>
-    <button type="button" role="tab" aria-selected="false" data-share-tab="image">图片</button>
-    <button type="button" role="tab" aria-selected="false" data-share-tab="qq">QQ</button>
-    <button type="button" role="tab" aria-selected="false" data-share-tab="wechat">微信</button>
+    <button type="button" role="tab" aria-selected="true" data-share-tab="link"><Link2 size={16} />链接</button>
+    <button type="button" role="tab" aria-selected="false" data-share-tab="image"><Image size={16} />图片</button>
+    <button type="button" role="tab" aria-selected="false" data-share-tab="qq"><MessageCircle size={16} />QQ</button>
+    <button type="button" role="tab" aria-selected="false" data-share-tab="wechat"><QrCode size={16} />微信</button>
   </div>
 
   <section class="share-panel" data-share-panel="link">
@@ -45,7 +48,9 @@ const imageUrl = assetHref(image);
 
   <section class="share-panel" data-share-panel="image" hidden>
     <canvas class="share-card-canvas" width="1200" height="630" data-share-card></canvas>
-    <button class="button button-primary" type="button" data-save-image>保存分享图片</button>
+    <button class="button button-primary" type="button" data-save-image>
+      <Download size={17} aria-hidden="true" />保存分享图片
+    </button>
   </section>
 
   <section class="share-panel share-action-panel" data-share-panel="qq" hidden>

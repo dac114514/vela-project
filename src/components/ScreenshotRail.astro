@@ -1,4 +1,5 @@
 ---
+import { Images } from '@lucide/astro';
 import { assetHref } from '../lib/urls';
 
 interface Props {
@@ -14,9 +15,9 @@ const { screenshots, title } = Astro.props;
     <div class="section-heading">
       <div>
         <span class="eyebrow">作品画面</span>
-        <h2 id="screenshots-title">应用截图</h2>
+        <h2 id="screenshots-title"><Images size={26} aria-hidden="true" />作品图片</h2>
       </div>
-      <p>横向滑动浏览，点击图片可放大查看。</p>
+      <p>封面和截图集中展示；横向滑动浏览，点击图片可放大。</p>
     </div>
 
     <div class="screenshot-rail" data-screenshot-rail tabindex="0" aria-label={`${title}截图列表`}>

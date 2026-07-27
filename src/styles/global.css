@@ -173,6 +173,9 @@ button {
 
 .main-nav a,
 .footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 12px;
   border-radius: 10px;
   color: var(--ink-600);
@@ -209,6 +212,9 @@ button {
 }
 
 .header-search button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   flex: 0 0 auto;
   border: 0;
   border-radius: 999px;
@@ -275,6 +281,7 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   min-height: 44px;
   border: 1px solid transparent;
   border-radius: 13px;
@@ -445,6 +452,9 @@ main {
 }
 
 .section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-size: clamp(1.7rem, 4vw, 2.35rem);
 }
 
@@ -599,6 +609,10 @@ dialog::backdrop {
 }
 
 .share-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 0;
   border-radius: 11px;
   padding: 9px;

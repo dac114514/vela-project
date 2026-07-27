@@ -1,5 +1,6 @@
 ---
 import { render } from 'astro:content';
+import { Clock, Package, Tag, User } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScreenshotRail from '../../components/ScreenshotRail.astro';
 import ShareDialog from '../../components/ShareDialog.astro';
@@ -21,6 +22,9 @@ interface Props {
 const { project } = Astro.props;
 const { entry, category, modifiedAt } = project;
 const { Content } = await render(entry);
+const mediaImages = [...new Set(
+  [entry.data.cover, ...entry.data.screenshots].filter((item): item is string => Boolean(item))
+)];
 const dateLabel = modifiedAt.getTime() > 0
   ? new Intl.DateTimeFormat('zh-CN', {
       year: 'numeric',
@@ -67,29 +71,31 @@ const dateLabel = modifiedAt.getTime() > 0
       </div>
     </header>
 
-    {entry.data.cover && (
-      <figure class="container project-cover">
-        <img src={assetHref(entry.data.cover)} alt={`${entry.data.title}宣传海报`} />
-      </figure>
-    )}
+    <div class="container">
+      <ScreenshotRail screenshots={mediaImages} title={entry.data.title} />
+    </div>
 
     <div class="container project-body-grid">
       <aside class="project-facts">
         <div>
+          <User size={18} aria-hidden="true" />
           <span>作者</span>
           <strong>{entry.data.author}</strong>
         </div>
         <div>
+          <Package size={18} aria-hidden="true" />
           <span>包名</span>
           <button type="button" data-copy-package={entry.data.packageName} title="复制包名">
             {entry.data.packageName}
           </button>
         </div>
         <div>
+          <Tag size={18} aria-hidden="true" />
           <span>当前版本</span>
           <strong>{entry.data.version}</strong>
         </div>
         <div>
+          <Clock size={18} aria-hidden="true" />
           <span>最近修改</span>
           <strong>{dateLabel}</strong>
         </div>
@@ -98,10 +104,6 @@ const dateLabel = modifiedAt.getTime() > 0
       <div class="project-prose">
         <Content />
       </div>
-    </div>
-
-    <div class="container">
-      <ScreenshotRail screenshots={entry.data.screenshots} title={entry.data.title} />
     </div>
   </article>
 </BaseLayout>
@@ -190,24 +192,6 @@ const dateLabel = modifiedAt.getTime() > 0
     margin-top: 26px;
   }
 
-  .project-cover {
-    width: min(calc(100% - 40px), 720px);
-    margin-top: 46px;
-  }
-
-  .project-cover img {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    margin-inline: auto;
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    background: var(--surface);
-    box-shadow: var(--shadow-small);
-    object-fit: contain;
-  }
-
   .project-body-grid {
     display: grid;
     grid-template-columns: 250px minmax(0, 760px);
@@ -227,7 +211,9 @@ const dateLabel = modifiedAt.getTime() > 0
 
   .project-facts > div {
     display: grid;
-    gap: 2px;
+    grid-template-columns: 22px minmax(0, 1fr);
+    row-gap: 2px;
+    column-gap: 10px;
     padding: 15px 0;
     border-bottom: 1px solid var(--line);
   }
@@ -237,6 +223,7 @@ const dateLabel = modifiedAt.getTime() > 0
   }
 
   .project-facts span {
+    grid-column: 2;
     color: var(--ink-500);
     font-size: 0.76rem;
     font-weight: 750;
@@ -244,6 +231,7 @@ const dateLabel = modifiedAt.getTime() > 0
 
   .project-facts strong,
   .project-facts button {
+    grid-column: 2;
     border: 0;
     padding: 0;
     color: var(--ink-800);
@@ -333,8 +321,5 @@ const dateLabel = modifiedAt.getTime() > 0
       grid-column: 1 / -1;
     }
 
-    .project-cover img {
-      border-radius: 16px;
-    }
   }
 </style>
