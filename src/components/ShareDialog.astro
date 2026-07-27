@@ -1,5 +1,5 @@
 ---
-import { Download, Image, Link2, MessageCircle, QrCode, Share2 } from '@lucide/astro';
+import { Copy, Download, Link2, Send, Share2 } from '@lucide/astro';
 import { assetHref } from '../lib/urls';
 
 interface Props {
@@ -25,49 +25,34 @@ const imageUrl = assetHref(image);
 >
   <div class="share-dialog-head">
     <div>
-      <span class="eyebrow">分享作品</span>
-      <h2>{title}</h2>
+      <span class="eyebrow">分享</span>
+      <h2>分享{title}</h2>
     </div>
     <button class="dialog-close" type="button" data-share-close aria-label="关闭">×</button>
   </div>
 
-  <div class="share-tabs" role="tablist" aria-label="分享方式">
-    <button type="button" role="tab" aria-selected="true" data-share-tab="link"><Link2 size={16} />链接</button>
-    <button type="button" role="tab" aria-selected="false" data-share-tab="image"><Image size={16} />图片</button>
-    <button type="button" role="tab" aria-selected="false" data-share-tab="qq"><MessageCircle size={16} />QQ</button>
-    <button type="button" role="tab" aria-selected="false" data-share-tab="wechat"><QrCode size={16} />微信</button>
-  </div>
-
-  <section class="share-panel" data-share-panel="link">
-    <label for="share-url">作品链接</label>
-    <div class="copy-row">
-      <input id="share-url" type="url" readonly data-share-url />
-      <button class="button button-primary" type="button" data-copy-link>复制链接</button>
+  <section class="share-panel">
+    <label>格式化链接</label>
+    <div class="share-link-preview" data-share-text></div>
+    <div class="share-actions">
+      <button class="button button-secondary" type="button" data-copy-link>
+        <Copy size={17} aria-hidden="true" />复制链接文案
+      </button>
+      <button class="button button-secondary" type="button" data-share-link>
+        <Link2 size={17} aria-hidden="true" />分享链接
+      </button>
     </div>
   </section>
 
-  <section class="share-panel" data-share-panel="image" hidden>
+  <section class="share-panel">
     <canvas class="share-card-canvas" width="1200" height="630" data-share-card></canvas>
-    <button class="button button-primary" type="button" data-save-image>
-      <Download size={17} aria-hidden="true" />保存分享图片
-    </button>
-  </section>
-
-  <section class="share-panel share-action-panel" data-share-panel="qq" hidden>
-    <div class="share-platform-mark">QQ</div>
-    <div>
-      <h3>分享到 QQ</h3>
-      <p>打开 QQ 分享窗口，并带上当前作品链接。</p>
-      <button class="button button-primary" type="button" data-share-qq>打开 QQ 分享</button>
-    </div>
-  </section>
-
-  <section class="share-panel share-action-panel" data-share-panel="wechat" hidden>
-    <canvas class="qr-canvas" width="240" height="240" data-share-qr></canvas>
-    <div>
-      <h3>分享到微信</h3>
-      <p>使用微信扫描二维码，或保存带二维码的分享图片后发送给好友。</p>
-      <button class="button button-primary" type="button" data-wechat-image>查看分享图片</button>
+    <div class="share-actions">
+      <button class="button button-primary" type="button" data-save-share-image>
+        <Send size={17} aria-hidden="true" />保存并分享图片
+      </button>
+      <button class="button button-secondary" type="button" data-save-image>
+        <Download size={17} aria-hidden="true" />仅保存图片
+      </button>
     </div>
   </section>
 
@@ -118,8 +103,7 @@ const imageUrl = assetHref(image);
 
   for (const dialog of dialogs) {
     const trigger = dialog.previousElementSibling as HTMLButtonElement | null;
-    const urlInput = dialog.querySelector<HTMLInputElement>('[data-share-url]');
-    const qrCanvas = dialog.querySelector<HTMLCanvasElement>('[data-share-qr]');
+    const shareTextElement = dialog.querySelector<HTMLElement>('[data-share-text]');
     const cardCanvas = dialog.querySelector<HTMLCanvasElement>('[data-share-card]');
     const feedback = dialog.querySelector<HTMLElement>('[data-share-feedback]');
     const title = dialog.dataset.shareTitle ?? document.title;
@@ -128,15 +112,7 @@ const imageUrl = assetHref(image);
 
     const buildAssets = async () => {
       const url = window.location.href;
-      if (urlInput) urlInput.value = url;
-      if (qrCanvas) {
-        await QRCode.toCanvas(qrCanvas, url, {
-          width: 240,
-          margin: 2,
-          errorCorrectionLevel: 'H',
-          color: { dark: '#0757d3', light: '#ffffff' }
-        });
-      }
+      if (shareTextElement) shareTextElement.textContent = `【${title}，${description}，${url}】`;
       if (!cardCanvas) return;
 
       const context = cardCanvas.getContext('2d');
@@ -197,41 +173,52 @@ const imageUrl = assetHref(image);
       if (event.target === dialog) dialog.close();
     });
 
-    const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-share-tab]')];
-    const panels = [...dialog.querySelectorAll<HTMLElement>('[data-share-panel]')];
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const selected = tab.dataset.shareTab;
-        tabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab)));
-        panels.forEach((panel) => {
-          panel.hidden = panel.dataset.sharePanel !== selected;
-        });
-      });
+    dialog.querySelector('[data-copy-link]')?.addEventListener('click', async () => {
+      const text = `【${title}，${description}，${window.location.href}】`;
+      await navigator.clipboard.writeText(text);
+      if (feedback) feedback.textContent = '链接文案已复制。';
     });
 
-    dialog.querySelector('[data-copy-link]')?.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(window.location.href);
-      if (feedback) feedback.textContent = '链接已复制。';
+    dialog.querySelector('[data-share-link]')?.addEventListener('click', async () => {
+      const url = window.location.href;
+      const text = `【${title}，${description}，${url}】`;
+      if (navigator.share) {
+        await navigator.share({ title, text, url });
+      } else {
+        await navigator.clipboard.writeText(text);
+        if (feedback) feedback.textContent = '链接文案已复制，可直接粘贴分享。';
+      }
     });
-    dialog.querySelector('[data-save-image]')?.addEventListener('click', () => {
+
+    const saveCanvas = () => {
       if (!cardCanvas) return;
       const link = document.createElement('a');
       link.download = `${title}-分享图.png`;
       link.href = cardCanvas.toDataURL('image/png');
       link.click();
-      if (feedback) feedback.textContent = '分享图片已生成。';
+    };
+
+    dialog.querySelector('[data-save-image]')?.addEventListener('click', () => {
+      saveCanvas();
+      if (feedback) feedback.textContent = '分享图片已保存。';
     });
-    dialog.querySelector('[data-share-qq]')?.addEventListener('click', () => {
-      const qqUrl = new URL('https://connect.qq.com/widget/shareqq/index.html');
-      qqUrl.searchParams.set('url', window.location.href);
-      qqUrl.searchParams.set('title', title);
-      qqUrl.searchParams.set('summary', description);
-      qqUrl.searchParams.set('pics', new URL(imageSrc, window.location.origin).href);
-      window.open(qqUrl, '_blank', 'noopener,noreferrer,width=760,height=640');
-    });
-    dialog.querySelector('[data-wechat-image]')?.addEventListener('click', () => {
-      const imageTab = tabs.find((tab) => tab.dataset.shareTab === 'image');
-      imageTab?.click();
+
+    dialog.querySelector('[data-save-share-image]')?.addEventListener('click', async () => {
+      if (!cardCanvas) return;
+      saveCanvas();
+      const blob = await new Promise<Blob | null>((resolve) => cardCanvas.toBlob(resolve, 'image/png'));
+      if (!blob) return;
+      const file = new File([blob], `${title}-分享图.png`, { type: 'image/png' });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title,
+          text: `【${title}，${description}，${window.location.href}】`,
+          files: [file]
+        });
+        if (feedback) feedback.textContent = '图片已保存并打开分享。';
+      } else if (feedback) {
+        feedback.textContent = '图片已保存，可从相册或下载中分享。';
+      }
     });
   }
 </script>

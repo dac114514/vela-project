@@ -1,5 +1,5 @@
 ---
-import { Copy, Download, FileText, Image, RotateCcw, Save, Settings } from '@lucide/astro';
+import { ArrowLeft, Copy, Download, FileText, Image, RotateCcw, Save, Settings } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { assetHref, href } from '../lib/urls';
 ---
@@ -7,7 +7,7 @@ import { assetHref, href } from '../lib/urls';
 <BaseLayout title="MDX 项目编辑器" description="生成蓝桥工作室作品项目文件。" noIndex>
   <section class="editor-page">
     <div class="container">
-      <a class="back-link" href={href('/')}>← 返回作品集</a>
+      <a class="back-link" href={href('/')}><ArrowLeft size={17} aria-hidden="true" />返回作品集</a>
       <div class="editor-heading">
         <div>
           <span class="eyebrow">内容工具</span>
@@ -212,7 +212,9 @@ import { assetHref, href } from '../lib/urls';
   }
 
   .back-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 30px;
     color: var(--brand-600);
     font-weight: 750;

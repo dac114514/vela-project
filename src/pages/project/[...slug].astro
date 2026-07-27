@@ -1,6 +1,6 @@
 ---
 import { render } from 'astro:content';
-import { Clock, Package, Tag, User } from '@lucide/astro';
+import { ArrowLeft, Clock, Package, Tag, User } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScreenshotRail from '../../components/ScreenshotRail.astro';
 import ShareDialog from '../../components/ShareDialog.astro';
@@ -41,7 +41,9 @@ const dateLabel = modifiedAt.getTime() > 0
 >
   <article class="project-page">
     <header class="project-hero container">
-      <a class="back-link" href={href(`/category/${category}`)}>← 返回{category}</a>
+      <a class="back-link" href={href(`/category/${category}`)}>
+        <ArrowLeft size={17} aria-hidden="true" />返回{category}
+      </a>
       <div class="project-heading">
         <div class:list={['project-hero-icon', { fallback: !entry.data.icon }]}>
           {entry.data.icon
@@ -54,29 +56,29 @@ const dateLabel = modifiedAt.getTime() > 0
             {entry.data.status !== '已发布' && <span class="status-chip">{entry.data.status}</span>}
           </div>
           <h1>{entry.data.title}</h1>
-          <p>{entry.data.description}</p>
-          <div class="project-actions">
-            {entry.data.links.map((link) => (
-              <a class="button button-primary" href={link.url} target="_blank" rel="noreferrer">
-                {link.label}
-              </a>
-            ))}
-            <ShareDialog
-              title={entry.data.title}
-              description={entry.data.description}
-              image={entry.data.cover ?? entry.data.icon}
-            />
-          </div>
         </div>
+      </div>
+      <div class="project-actions">
+        {entry.data.links.map((link) => (
+          <a class="button button-primary" href={link.url} target="_blank" rel="noreferrer">
+            {link.label}
+          </a>
+        ))}
+        <ShareDialog
+          title={entry.data.title}
+          description={entry.data.description}
+          image={entry.data.cover ?? entry.data.icon}
+        />
       </div>
     </header>
 
-    <div class="container">
-      <ScreenshotRail screenshots={mediaImages} title={entry.data.title} />
-    </div>
+    <div class="container project-content">
+      <section class="project-intro" aria-labelledby="project-intro-title">
+        <span id="project-intro-title">作品简介</span>
+        <p>{entry.data.description}</p>
+      </section>
 
-    <div class="container project-body-grid">
-      <aside class="project-facts">
+      <section class="project-facts" aria-label="作品信息">
         <div>
           <User size={18} aria-hidden="true" />
           <span>作者</span>
@@ -99,11 +101,13 @@ const dateLabel = modifiedAt.getTime() > 0
           <span>最近修改</span>
           <strong>{dateLabel}</strong>
         </div>
-      </aside>
+      </section>
 
-      <div class="project-prose">
+      <section class="project-prose" aria-label="作品正文">
         <Content />
-      </div>
+      </section>
+
+      <ScreenshotRail screenshots={mediaImages} title={entry.data.title} />
     </div>
   </article>
 </BaseLayout>
@@ -124,28 +128,30 @@ const dateLabel = modifiedAt.getTime() > 0
 
 <style>
   .project-page {
-    padding-top: 60px;
+    padding-top: 40px;
   }
 
   .back-link {
-    display: inline-block;
-    margin-bottom: 34px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
     color: var(--brand-600);
     font-weight: 750;
   }
 
   .project-heading {
     display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
     align-items: center;
-    gap: 24px;
+    gap: 20px;
   }
 
   .project-hero-icon {
     display: grid;
     place-items: center;
-    width: 112px;
-    height: 112px;
+    width: 96px;
+    height: 96px;
     border: 1px solid var(--line);
     border-radius: 26px;
     background: var(--surface);
@@ -172,39 +178,53 @@ const dateLabel = modifiedAt.getTime() > 0
   }
 
   h1 {
-    margin: 10px 0 6px;
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    margin: 8px 0 0;
+    font-size: clamp(2.2rem, 5vw, 3.7rem);
     line-height: 1.05;
     letter-spacing: -0.05em;
-  }
-
-  .project-heading-copy > p {
-    max-width: 760px;
-    margin: 18px 0 0;
-    color: var(--ink-600);
-    font-size: clamp(1rem, 2.3vw, 1.22rem);
   }
 
   .project-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 26px;
+    margin-top: 20px;
   }
 
-  .project-body-grid {
+  .project-content {
     display: grid;
-    grid-template-columns: 250px minmax(0, 760px);
-    justify-content: space-between;
-    gap: 60px;
-    padding-top: 56px;
+    max-width: 920px;
+    gap: 26px;
+    padding-top: 28px;
+  }
+
+  .project-intro {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px 20px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .project-intro span {
+    color: var(--brand-600);
+    font-size: 0.76rem;
+    font-weight: 850;
+  }
+
+  .project-intro p {
+    margin: 5px 0 0;
+    color: var(--ink-800);
+    font-size: 1rem;
+    line-height: 1.62;
   }
 
   .project-facts {
-    align-self: start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     border: 1px solid var(--line);
-    border-radius: 22px;
-    padding: 7px 20px;
+    border-radius: 18px;
+    padding: 4px 18px;
     background: var(--surface);
     box-shadow: var(--shadow-small);
   }
@@ -214,12 +234,21 @@ const dateLabel = modifiedAt.getTime() > 0
     grid-template-columns: 22px minmax(0, 1fr);
     row-gap: 2px;
     column-gap: 10px;
-    padding: 15px 0;
+    padding: 13px 0;
     border-bottom: 1px solid var(--line);
   }
 
-  .project-facts > div:last-child {
+  .project-facts > div:nth-last-child(-n + 2) {
     border-bottom: 0;
+  }
+
+  .project-facts > div:nth-child(odd) {
+    padding-right: 18px;
+  }
+
+  .project-facts > div:nth-child(even) {
+    border-left: 1px solid var(--line);
+    padding-left: 18px;
   }
 
   .project-facts span {
@@ -249,7 +278,8 @@ const dateLabel = modifiedAt.getTime() > 0
 
   .project-prose {
     min-width: 0;
-    font-size: 1.02rem;
+    padding: 2px 2px 0;
+    font-size: 0.98rem;
   }
 
   .project-prose :global(h2) {
@@ -289,23 +319,25 @@ const dateLabel = modifiedAt.getTime() > 0
     color: var(--ink-600);
   }
 
-  @media (max-width: 800px) {
-    .project-body-grid {
-      grid-template-columns: 1fr;
-      gap: 36px;
-    }
-  }
-
   @media (max-width: 640px) {
+    .project-page {
+      padding-top: 18px;
+    }
+
+    .back-link {
+      margin-bottom: 16px;
+      font-size: 0.86rem;
+    }
+
     .project-heading {
-      grid-template-columns: 80px 1fr;
-      gap: 18px;
+      grid-template-columns: 76px 1fr;
+      gap: 14px;
     }
 
     .project-hero-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
     }
 
     .project-hero-icon.fallback {
@@ -313,13 +345,61 @@ const dateLabel = modifiedAt.getTime() > 0
     }
 
     h1 {
-      font-size: clamp(2.35rem, 13vw, 4rem);
+      font-size: clamp(1.75rem, 8.5vw, 2.5rem);
     }
 
-    .project-heading-copy > p,
     .project-actions {
-      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
     }
 
+    .project-actions :global(.button) {
+      min-width: 0;
+      padding-inline: 10px;
+    }
+
+    .project-content {
+      gap: 16px;
+      padding-top: 16px;
+    }
+
+    .project-intro {
+      border-radius: 16px;
+      padding: 14px 15px;
+    }
+
+    .project-intro p {
+      font-size: 0.92rem;
+    }
+
+    .project-facts {
+      grid-template-columns: 1fr;
+      border-radius: 16px;
+      padding-inline: 15px;
+    }
+
+    .project-facts > div {
+      padding: 11px 0;
+    }
+
+    .project-facts > div:nth-child(odd) {
+      padding-right: 0;
+    }
+
+    .project-facts > div:nth-child(even) {
+      border-left: 0;
+      padding-left: 0;
+    }
+
+    .project-facts > div:nth-child(3) {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .project-prose :global(h2) {
+      margin-top: 1.8em;
+      font-size: 1.45rem;
+    }
   }
 </style>

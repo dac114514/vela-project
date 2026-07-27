@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import { ArrowLeft } from '@lucide/astro';
 import { getProjects } from '../lib/projects';
 import { href } from '../lib/urls';
 
@@ -10,7 +11,7 @@ const projects = await getProjects();
 <BaseLayout title="搜索作品" description="搜索蓝桥工作室作品。" noIndex>
   <section class="search-page">
     <div class="container">
-      <a class="back-link" href={href('/')}>← 返回首页</a>
+      <a class="back-link" href={href('/')}><ArrowLeft size={17} aria-hidden="true" />返回首页</a>
       <div class="section-heading">
         <div>
           <span class="eyebrow">查找作品</span>
@@ -82,7 +83,9 @@ const projects = await getProjects();
   }
 
   .back-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 34px;
     color: var(--brand-600);
     font-weight: 750;

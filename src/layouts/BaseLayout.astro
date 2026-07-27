@@ -72,15 +72,7 @@ const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).hre
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <div>
-          <strong>{siteInfo.shortName}</strong>
-          <p>{siteInfo.description}</p>
-        </div>
-        <div class="footer-links">
-          <a href={href('/about')}>关于工作室</a>
-          <a href={href('/category/all')}>全部作品</a>
-        </div>
-        <small>{siteInfo.copyright}</small>
+        <small>蓝桥工作室作品展示集</small>
       </div>
     </footer>
   </body>

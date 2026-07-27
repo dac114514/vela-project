@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
+import { ArrowLeft } from '@lucide/astro';
 import { getCategoryGroups, getProjects, type ProjectRecord } from '../../lib/projects';
 import { href } from '../../lib/urls';
 
@@ -30,7 +31,7 @@ const { name, projects } = Astro.props;
 <BaseLayout title={name} description={`浏览蓝桥工作室的${name}。`}>
   <section class="listing-hero">
     <div class="container">
-      <a class="back-link" href={href('/')}>← 返回首页</a>
+      <a class="back-link" href={href('/')}><ArrowLeft size={17} aria-hidden="true" />返回首页</a>
       <div class="section-heading">
         <div>
           <span class="eyebrow">作品分类</span>
@@ -56,7 +57,9 @@ const { name, projects } = Astro.props;
   }
 
   .back-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 34px;
     color: var(--brand-600);
     font-weight: 750;

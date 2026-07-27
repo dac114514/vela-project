@@ -239,31 +239,18 @@ main {
 }
 
 .site-footer {
-  margin-top: 96px;
+  margin-top: 64px;
   border-top: 1px solid var(--line);
   background: color-mix(in srgb, var(--surface) 62%, transparent);
 }
 
 .footer-inner {
-  display: grid;
-  grid-template-columns: 1.4fr auto;
-  align-items: start;
-  gap: 24px;
-  padding-block: 42px;
-}
-
-.footer-inner p {
-  max-width: 620px;
-  margin: 5px 0 0;
-  color: var(--ink-600);
-}
-
-.footer-links {
   display: flex;
+  justify-content: center;
+  padding-block: 24px;
 }
 
 .footer-inner small {
-  grid-column: 1 / -1;
   color: var(--ink-500);
 }
 
@@ -480,7 +467,7 @@ main {
 
 .screenshot-button {
   flex: 0 0 auto;
-  height: 430px;
+  height: 320px;
   border: 0;
   border-radius: 22px;
   padding: 0;
@@ -577,7 +564,7 @@ dialog::backdrop {
 }
 
 .share-dialog {
-  width: min(92vw, 760px);
+  width: min(92vw, 620px);
   max-height: 92vh;
   border: 1px solid var(--line);
   border-radius: 26px;
@@ -596,35 +583,6 @@ dialog::backdrop {
 
 .share-dialog-head h2 {
   margin: 0;
-}
-
-.share-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin: 24px 0;
-  padding: 5px;
-  border-radius: 15px;
-  background: var(--surface-soft);
-}
-
-.share-tabs button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 0;
-  border-radius: 11px;
-  padding: 9px;
-  background: transparent;
-  cursor: pointer;
-}
-
-.share-tabs button[aria-selected="true"] {
-  background: var(--surface);
-  color: var(--brand-600);
-  box-shadow: 0 5px 16px rgba(31, 75, 134, 0.09);
-  font-weight: 800;
 }
 
 .share-panel label {
@@ -654,50 +612,27 @@ dialog::backdrop {
   display: block;
   width: 100%;
   height: auto;
-  margin-bottom: 16px;
+  margin: 18px 0 12px;
   border: 1px solid var(--line);
   border-radius: 16px;
 }
 
-.share-action-panel {
+.share-actions {
   display: flex;
-  align-items: center;
-  gap: 22px;
-  padding: 18px;
-  border-radius: 18px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.share-link-preview {
+  min-height: 76px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 11px 13px;
   background: var(--surface-soft);
-}
-
-.share-action-panel[hidden] {
-  display: none;
-}
-
-.share-action-panel h3 {
-  margin: 0 0 4px;
-}
-
-.share-action-panel p {
-  margin: 0 0 14px;
-  color: var(--ink-600);
-}
-
-.share-platform-mark {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  width: 112px;
-  height: 112px;
-  border-radius: 28px;
-  background: #1473ef;
-  color: white;
-  font-size: 2rem;
-  font-weight: 900;
-}
-
-.qr-canvas {
-  width: 180px;
-  height: 180px;
-  border-radius: 14px;
+  color: var(--ink-800);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  word-break: break-all;
 }
 
 .share-feedback {
@@ -786,24 +721,44 @@ dialog::backdrop {
 
 @media (max-width: 640px) {
   .container {
-    width: min(calc(100% - 26px), var(--page-width));
+    width: min(calc(100% - 28px), var(--page-width));
   }
 
   .site-header {
-    position: static;
+    position: sticky;
   }
 
   .header-inner {
     grid-template-columns: 1fr;
+    min-height: 58px;
+    padding-block: 7px;
   }
 
   .brand-link {
-    justify-self: center;
+    justify-self: start;
+    font-size: 0.94rem;
+  }
+
+  .brand-link img {
+    width: 36px;
+    height: 36px;
   }
 
   .main-nav {
-    justify-content: center;
-    overflow-x: auto;
+    position: fixed;
+    z-index: 80;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 5px;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    box-shadow: 0 12px 38px rgba(14, 42, 83, 0.2);
+    backdrop-filter: blur(20px);
   }
 
   .header-search {
@@ -811,7 +766,16 @@ dialog::backdrop {
   }
 
   .main-nav a {
+    flex-direction: column;
+    gap: 1px;
+    padding: 5px 3px;
+    font-size: 0.68rem;
     white-space: nowrap;
+  }
+
+  .main-nav a svg {
+    width: 18px;
+    height: 18px;
   }
 
   .project-grid {
@@ -838,7 +802,8 @@ dialog::backdrop {
   }
 
   .screenshot-button {
-    height: 330px;
+    height: 238px;
+    border-radius: 16px;
   }
 
   .lightbox {
@@ -853,30 +818,24 @@ dialog::backdrop {
   }
 
   .share-dialog {
-    padding: 18px;
-  }
-
-  .share-tabs {
-    grid-template-columns: repeat(2, 1fr);
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+    border-radius: 22px;
+    padding: 16px;
   }
 
   .copy-row,
-  .share-action-panel {
+  .share-actions {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .share-platform-mark,
-  .qr-canvas {
-    align-self: center;
+  .share-actions .button {
+    width: 100%;
   }
 
   .footer-inner {
-    grid-template-columns: 1fr;
-  }
-
-  .footer-inner small {
-    grid-column: auto;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
   }
 
   .mdx-feature-grid {
