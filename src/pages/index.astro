@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import { Sparkles, UserPlus } from '@lucide/astro';
 import { siteInfo } from '../data/site';
 import { getCategoryGroups, getProjects } from '../lib/projects';
 import { assetHref, href } from '../lib/urls';
@@ -48,6 +49,14 @@ const perSection = 6;
       </div>
     </div>
   </section>
+
+  <aside class="container recruitment-note" aria-label="工作室招募提示">
+    <span class="recruitment-icon"><UserPlus size={21} aria-hidden="true" /></span>
+    <div>
+      <strong><Sparkles size={15} aria-hidden="true" />寻找新的创作者伙伴</strong>
+      <p>蓝桥工作室期待志同道合的新成员。想一起把好点子做成作品，欢迎联系纯水机。</p>
+    </div>
+  </aside>
 
   <div class="container category-sections">
     {groups.map((group) => (
@@ -187,6 +196,41 @@ const perSection = 6;
     padding-top: 20px;
   }
 
+  .recruitment-note {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 13px;
+    margin-top: 24px;
+    border: 1px solid var(--brand-200);
+    border-radius: 17px;
+    padding: 14px 16px;
+    background: color-mix(in srgb, var(--brand-50) 82%, var(--surface));
+  }
+
+  .recruitment-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: var(--brand-600);
+    color: white;
+  }
+
+  .recruitment-note strong {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.94rem;
+  }
+
+  .recruitment-note p {
+    margin: 3px 0 0;
+    color: var(--ink-600);
+    font-size: 0.84rem;
+  }
+
   .category-section {
     padding-top: 58px;
   }
@@ -236,6 +280,24 @@ const perSection = 6;
 
     .brand-poster {
       border-radius: 18px;
+    }
+
+    .recruitment-note {
+      grid-template-columns: 38px minmax(0, 1fr);
+      margin-top: 12px;
+      border-radius: 15px;
+      padding: 12px;
+    }
+
+    .recruitment-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+    }
+
+    .recruitment-note p {
+      font-size: 0.79rem;
+      line-height: 1.5;
     }
 
     .category-section {

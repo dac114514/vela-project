@@ -388,20 +388,20 @@ main {
 .project-card-link {
   position: relative;
   display: grid;
-  grid-template-columns: 62px minmax(0, 1fr) 22px;
+  grid-template-columns: 54px minmax(0, 1fr) 20px;
   align-items: center;
-  min-height: 132px;
-  gap: 16px;
-  padding: 18px;
+  min-height: 104px;
+  gap: 12px;
+  padding: 13px 14px;
 }
 
 .project-icon {
   display: grid;
   place-items: center;
-  width: 62px;
-  height: 62px;
+  width: 54px;
+  height: 54px;
   border: 1px solid var(--line);
-  border-radius: 15px;
+  border-radius: 13px;
   background: var(--surface);
   box-shadow: 0 10px 24px rgba(37, 80, 142, 0.11);
   overflow: hidden;
@@ -435,8 +435,8 @@ main {
 }
 
 .project-card h3 {
-  margin: 7px 0 3px;
-  font-size: 1.08rem;
+  margin: 4px 0 2px;
+  font-size: 1rem;
   line-height: 1.25;
 }
 
@@ -445,7 +445,7 @@ main {
   margin: 0;
   overflow: hidden;
   color: var(--ink-600);
-  font-size: 0.87rem;
+  font-size: 0.82rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
 }
@@ -453,11 +453,11 @@ main {
 .project-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px 13px;
-  margin-top: 9px;
+  gap: 4px 11px;
+  margin-top: 5px;
   padding-top: 0;
   color: var(--ink-500);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
 }
 
 .card-arrow {
@@ -796,7 +796,7 @@ dialog::backdrop {
     right: 0;
     left: 0;
     display: none;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 5px;
     border: 1px solid var(--line);
     border-radius: 16px;
@@ -865,16 +865,40 @@ dialog::backdrop {
   }
 
   .project-card-link {
-    grid-template-columns: 58px minmax(0, 1fr) 20px;
-    min-height: 122px;
-    gap: 13px;
-    padding: 15px;
+    grid-template-columns: 48px minmax(0, 1fr) 18px;
+    min-height: 92px;
+    gap: 10px;
+    padding: 11px 12px;
   }
 
   .project-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .project-card-topline {
+    gap: 4px;
+  }
+
+  .category-chip,
+  .status-chip {
+    padding: 2px 7px;
+    font-size: 0.66rem;
+  }
+
+  .project-card h3 {
+    margin-top: 3px;
+    font-size: 0.96rem;
+  }
+
+  .project-card p {
+    font-size: 0.78rem;
+  }
+
+  .project-meta {
+    margin-top: 4px;
+    font-size: 0.68rem;
   }
 
   .section-heading {

@@ -1,5 +1,5 @@
 ---
-import { ArrowLeft, Code2, LayoutGrid, Pencil, UserRound } from '@lucide/astro';
+import { ArrowLeft, Code2, LayoutGrid, UserRound } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { siteInfo } from '../data/site';
@@ -31,16 +31,15 @@ const projects = (await getProjects()).filter(
           <span class="role"><UserRound size={14} aria-hidden="true" />{siteInfo.author.role}</span>
           <h1>{siteInfo.author.name}</h1>
           <p>{siteInfo.author.bio}</p>
-          <div class="developer-actions">
-            {siteInfo.author.contacts.map((contact) => (
-              <a class="button button-secondary" href={contact.url} target="_blank" rel="noreferrer">
-                {contact.label}
-              </a>
-            ))}
-            <a class="button button-secondary" href={href('/author-editor')}>
-              <Pencil size={16} aria-hidden="true" />编辑资料
-            </a>
-          </div>
+          {siteInfo.author.contacts.length > 0 && (
+            <div class="developer-actions">
+              {siteInfo.author.contacts.map((contact) => (
+                <a class="button button-secondary" href={contact.url} target="_blank" rel="noreferrer">
+                  {contact.label}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 

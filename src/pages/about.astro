@@ -1,5 +1,5 @@
 ---
-import { LayoutGrid, Pencil, UserRound } from '@lucide/astro';
+import { ChevronRight, UserRound } from '@lucide/astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteInfo } from '../data/site';
 import { assetHref, href } from '../lib/urls';
@@ -25,10 +25,10 @@ import { assetHref, href } from '../lib/urls';
 
   <section class="container author-section">
     <div class="section-title">
-      <span class="eyebrow">作者</span>
-      <h2>创作者信息</h2>
+      <span class="eyebrow">开发者</span>
+      <h2>工作室成员</h2>
     </div>
-    <div class="author-card">
+    <a class="author-card" href={href('/developer')} aria-label={`查看${siteInfo.author.name}的开发者主页`}>
       <div class="author-avatar" aria-label={`${siteInfo.author.name}头像`}>
         {siteInfo.author.avatar
           ? <img src={assetHref(siteInfo.author.avatar)} alt={siteInfo.author.name} />
@@ -40,29 +40,9 @@ import { assetHref, href } from '../lib/urls';
           <span><UserRound size={13} aria-hidden="true" />{siteInfo.author.role}</span>
         </div>
         <p>{siteInfo.author.bio}</p>
-        <div class="contact-list">
-          {siteInfo.author.contacts.length > 0
-            ? siteInfo.author.contacts.map((contact) => (
-                <a class="button button-secondary" href={contact.url} target="_blank" rel="noreferrer">
-                  {contact.label}
-                </a>
-              ))
-            : null}
-        </div>
       </div>
-    </div>
-
-    <div class="about-actions">
-      <a class="button button-secondary" href={href('/developer')}>
-        <UserRound size={16} aria-hidden="true" />开发者主页
-      </a>
-      <a class="button button-primary" href={href('/category/all')}>
-        <LayoutGrid size={17} aria-hidden="true" />浏览全部作品
-      </a>
-      <a class="button button-secondary" href={href('/author-editor')}>
-        <Pencil size={16} aria-hidden="true" />编辑作者
-      </a>
-    </div>
+      <ChevronRight class="author-arrow" size={20} aria-hidden="true" />
+    </a>
   </section>
 </BaseLayout>
 
@@ -120,7 +100,7 @@ import { assetHref, href } from '../lib/urls';
 
   .author-card {
     display: grid;
-    grid-template-columns: 68px 1fr;
+    grid-template-columns: 68px minmax(0, 1fr) 22px;
     align-items: center;
     gap: 16px;
     border: 1px solid var(--line);
@@ -128,6 +108,12 @@ import { assetHref, href } from '../lib/urls';
     padding: 16px;
     background: var(--surface);
     box-shadow: var(--shadow-small);
+    transition: border-color 180ms ease, transform 180ms ease;
+  }
+
+  .author-card:hover {
+    border-color: var(--brand-200);
+    transform: translateY(-1px);
   }
 
   .author-avatar {
@@ -179,17 +165,8 @@ import { assetHref, href } from '../lib/urls';
     font-size: 0.86rem;
   }
 
-  .contact-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px;
-  }
-
-  .about-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 24px;
+  .author-arrow {
+    color: var(--brand-600);
   }
 
   @media (max-width: 640px) {
@@ -210,7 +187,7 @@ import { assetHref, href } from '../lib/urls';
     }
 
     .author-card {
-      grid-template-columns: 54px minmax(0, 1fr);
+      grid-template-columns: 54px minmax(0, 1fr) 18px;
       align-items: start;
       gap: 12px;
       padding: 14px;
@@ -223,9 +200,5 @@ import { assetHref, href } from '../lib/urls';
       font-size: 1.45rem;
     }
 
-    .about-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
   }
 </style>
