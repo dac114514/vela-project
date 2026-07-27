@@ -1,0 +1,199 @@
+---
+import { ArrowLeft, Code2, LayoutGrid, Pencil, UserRound } from '@lucide/astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { siteInfo } from '../data/site';
+import { getProjects } from '../lib/projects';
+import { assetHref, href } from '../lib/urls';
+
+const projects = (await getProjects()).filter(
+  (project) => project.entry.data.author === siteInfo.author.name
+);
+---
+
+<BaseLayout
+  title={`${siteInfo.author.name}的开发者主页`}
+  description={`${siteInfo.author.name}在蓝桥工作室发布的作品。`}
+>
+  <section class="developer-page">
+    <div class="container">
+      <a class="back-link" href={href('/about')}>
+        <ArrowLeft size={17} aria-hidden="true" />返回关于
+      </a>
+
+      <header class="developer-profile">
+        <div class="developer-avatar">
+          {siteInfo.author.avatar
+            ? <img src={assetHref(siteInfo.author.avatar)} alt={siteInfo.author.name} />
+            : <span>{siteInfo.author.name.slice(0, 1)}</span>}
+        </div>
+        <div class="developer-copy">
+          <span class="role"><UserRound size={14} aria-hidden="true" />{siteInfo.author.role}</span>
+          <h1>{siteInfo.author.name}</h1>
+          <p>{siteInfo.author.bio}</p>
+          <div class="developer-actions">
+            {siteInfo.author.contacts.map((contact) => (
+              <a class="button button-secondary" href={contact.url} target="_blank" rel="noreferrer">
+                {contact.label}
+              </a>
+            ))}
+            <a class="button button-secondary" href={href('/author-editor')}>
+              <Pencil size={16} aria-hidden="true" />编辑资料
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <section class="developer-works" aria-labelledby="developer-works-title">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow"><Code2 size={14} aria-hidden="true" />开发者作品</span>
+            <h2 id="developer-works-title">已发布作品</h2>
+          </div>
+          <a class="all-projects-link" href={href('/category/all')}>
+            <LayoutGrid size={16} aria-hidden="true" />全部作品
+          </a>
+        </div>
+        <div class="project-grid">
+          {projects.map((project) => <ProjectCard project={project} />)}
+        </div>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .developer-page {
+    padding: 40px 0 24px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    color: var(--brand-600);
+    font-weight: 750;
+  }
+
+  .developer-profile {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    align-items: center;
+    max-width: 760px;
+    gap: 20px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 22px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .developer-avatar {
+    display: grid;
+    place-items: center;
+    width: 92px;
+    height: 92px;
+    border-radius: 22px;
+    background: var(--brand-600);
+    color: white;
+    font-size: 2.4rem;
+    font-weight: 900;
+    overflow: hidden;
+  }
+
+  .developer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .role {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--brand-600);
+    font-size: 0.76rem;
+    font-weight: 800;
+  }
+
+  h1 {
+    margin: 4px 0;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+  }
+
+  .developer-copy > p {
+    margin: 8px 0 0;
+    color: var(--ink-600);
+  }
+
+  .developer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .developer-works {
+    margin-top: 48px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .all-projects-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--brand-600);
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
+  @media (max-width: 640px) {
+    .developer-page {
+      padding-top: 18px;
+    }
+
+    .back-link {
+      margin-bottom: 16px;
+      font-size: 0.86rem;
+    }
+
+    .developer-profile {
+      grid-template-columns: 68px minmax(0, 1fr);
+      align-items: start;
+      gap: 14px;
+      border-radius: 17px;
+      padding: 15px;
+    }
+
+    .developer-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 17px;
+      font-size: 1.8rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .developer-copy > p {
+      font-size: 0.86rem;
+    }
+
+    .developer-actions {
+      grid-column: 1 / -1;
+    }
+
+    .developer-works {
+      margin-top: 34px;
+    }
+  }
+</style>

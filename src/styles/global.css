@@ -165,6 +165,22 @@ button {
   object-fit: contain;
 }
 
+.menu-toggle {
+  display: none;
+}
+
+.menu-close-icon {
+  display: none;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-open-icon {
+  display: none;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-close-icon {
+  display: block;
+}
+
 .main-nav {
   display: flex;
   justify-content: center;
@@ -245,13 +261,46 @@ main {
 }
 
 .footer-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 22px;
+  padding-block: 28px;
+}
+
+.footer-brand {
   display: flex;
-  justify-content: center;
-  padding-block: 24px;
+  align-items: center;
+  gap: 11px;
+}
+
+.footer-brand img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.footer-brand strong {
+  display: block;
+  font-size: 0.94rem;
+}
+
+.footer-brand p {
+  margin: 1px 0 0;
+  color: var(--ink-500);
+  font-size: 0.78rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
 }
 
 .footer-inner small {
+  grid-column: 1 / -1;
   color: var(--ink-500);
+  font-size: 0.75rem;
 }
 
 .eyebrow {
@@ -509,11 +558,11 @@ dialog::backdrop {
 }
 
 .lightbox {
-  width: min(94vw, 1180px);
-  height: min(92vh, 900px);
+  width: min(92vw, 960px);
+  height: min(78dvh, 700px);
   border: 0;
-  border-radius: 26px;
-  padding: 30px 70px 44px;
+  border-radius: 22px;
+  padding: 24px 68px 42px;
   background: color-mix(in srgb, var(--surface-soft) 96%, transparent);
   box-shadow: var(--shadow);
 }
@@ -540,7 +589,8 @@ dialog::backdrop {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
-  font-size: 2rem;
+  display: grid;
+  place-items: center;
   cursor: pointer;
   transform: translateY(-50%);
 }
@@ -719,6 +769,59 @@ dialog::backdrop {
   }
 }
 
+@media (max-width: 720px) {
+  .header-inner {
+    position: relative;
+    grid-template-columns: 1fr auto;
+    min-height: 60px;
+    padding-block: 8px;
+  }
+
+  .menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0;
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .main-nav {
+    position: absolute;
+    z-index: 90;
+    top: calc(100% + 8px);
+    right: 0;
+    left: 0;
+    display: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 8px;
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    box-shadow: 0 16px 44px rgba(14, 42, 83, 0.18);
+    backdrop-filter: blur(20px);
+  }
+
+  .main-nav[data-open] {
+    display: grid;
+  }
+
+  .main-nav a {
+    justify-content: flex-start;
+    min-height: 44px;
+    padding: 9px 11px;
+    background: var(--surface-soft);
+  }
+
+  .header-search {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .container {
     width: min(calc(100% - 28px), var(--page-width));
@@ -729,7 +832,7 @@ dialog::backdrop {
   }
 
   .header-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
     min-height: 58px;
     padding-block: 7px;
   }
@@ -744,32 +847,11 @@ dialog::backdrop {
     height: 36px;
   }
 
-  .main-nav {
-    position: fixed;
-    z-index: 80;
-    right: 10px;
-    bottom: calc(10px + env(safe-area-inset-bottom));
-    left: 10px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 5px;
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
-    box-shadow: 0 12px 38px rgba(14, 42, 83, 0.2);
-    backdrop-filter: blur(20px);
-  }
-
-  .header-search {
-    display: none;
-  }
-
   .main-nav a {
-    flex-direction: column;
-    gap: 1px;
-    padding: 5px 3px;
-    font-size: 0.68rem;
+    flex-direction: row;
+    gap: 7px;
+    padding: 9px 11px;
+    font-size: 0.82rem;
     white-space: nowrap;
   }
 
@@ -807,14 +889,18 @@ dialog::backdrop {
   }
 
   .lightbox {
-    padding: 58px 12px 42px;
+    width: calc(100vw - 20px);
+    height: min(66dvh, 520px);
+    border-radius: 18px;
+    padding: 52px 12px 62px;
   }
 
   .lightbox-nav {
     top: auto;
-    bottom: 12px;
+    bottom: 10px;
     width: 44px;
     height: 44px;
+    transform: none;
   }
 
   .share-dialog {
@@ -835,7 +921,23 @@ dialog::backdrop {
   }
 
   .footer-inner {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding-block: 24px;
+  }
+
+  .footer-links {
+    justify-content: start;
+    gap: 2px;
+  }
+
+  .footer-links a {
+    padding: 6px 9px;
+    font-size: 0.8rem;
+  }
+
+  .footer-inner small {
+    grid-column: auto;
   }
 
   .mdx-feature-grid {

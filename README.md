@@ -48,6 +48,7 @@ icon: "/projects/example/icon.webp"
 cover: "/projects/example/cover.webp"
 screenshots:
   - "/projects/example/screenshot-1.webp"
+downloadUrl: "https://example.com/app.apk"
 links:
   - label: "访问作品"
     url: "https://example.com"
@@ -55,11 +56,15 @@ links:
 ```
 
 - `title`、`packageName`、`author`、`description` 和 `version` 必填。
-- `icon`、`cover`、`screenshots` 和 `links` 可以省略。
+- `icon`、`cover`、`screenshots`、`downloadUrl` 和 `links` 可以省略。
+- `downloadUrl` 填写文件直链后，详情页会显示绿色下载按钮；留空则不显示。
 - `status` 默认是“已发布”，只有其他状态才会在卡片上额外显示。
 - `order` 是可选数字；数字越小，排序越靠前。
 - `updatedAt` 是可选日期；填写后会覆盖 Git 最近修改时间。
 - 正文可以只有一句话，也可以使用完整 Markdown/MDX。
+
+作品详情网址根据包名自动生成：去掉 `com.` 前缀，并把点号替换为下划线。例如
+`com.bluebridge.almanac` 会生成 `/project/bluebridge_almanac`。
 
 ## 自定义 MDX 排版
 

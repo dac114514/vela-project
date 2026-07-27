@@ -21,6 +21,7 @@ const projects = defineCollection({
     cover: z.string().optional(),
     screenshots: z.array(z.string()).default([]),
     links: z.array(linkSchema).default([]),
+    downloadUrl: z.string().url().optional(),
     status: z.string().default('已发布'),
     updatedAt: z.coerce.date().optional(),
     order: z.number().optional()

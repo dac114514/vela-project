@@ -1,6 +1,6 @@
 ---
 import { render } from 'astro:content';
-import { ArrowLeft, Clock, Package, Tag, User } from '@lucide/astro';
+import { ArrowLeft, Clock, Download, Package, Tag, User } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScreenshotRail from '../../components/ScreenshotRail.astro';
 import ShareDialog from '../../components/ShareDialog.astro';
@@ -64,6 +64,17 @@ const dateLabel = modifiedAt.getTime() > 0
             {link.label}
           </a>
         ))}
+        {entry.data.downloadUrl && (
+          <a
+            class="button button-download"
+            href={entry.data.downloadUrl}
+            download
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Download size={17} aria-hidden="true" />下载
+          </a>
+        )}
         <ShareDialog
           title={entry.data.title}
           description={entry.data.description}
@@ -82,7 +93,7 @@ const dateLabel = modifiedAt.getTime() > 0
         <div>
           <User size={18} aria-hidden="true" />
           <span>作者</span>
-          <strong>{entry.data.author}</strong>
+          <a class="developer-link" href={href('/developer')}>{entry.data.author}</a>
         </div>
         <div>
           <Package size={18} aria-hidden="true" />
@@ -191,6 +202,17 @@ const dateLabel = modifiedAt.getTime() > 0
     margin-top: 20px;
   }
 
+  .button-download {
+    border-color: #159447;
+    background: #159447;
+    color: white;
+    box-shadow: 0 8px 20px rgba(21, 148, 71, 0.2);
+  }
+
+  .button-download:hover {
+    background: #0f7e3b;
+  }
+
   .project-content {
     display: grid;
     max-width: 920px;
@@ -259,7 +281,8 @@ const dateLabel = modifiedAt.getTime() > 0
   }
 
   .project-facts strong,
-  .project-facts button {
+  .project-facts button,
+  .project-facts .developer-link {
     grid-column: 2;
     border: 0;
     padding: 0;
@@ -274,6 +297,10 @@ const dateLabel = modifiedAt.getTime() > 0
   .project-facts button {
     color: var(--brand-600);
     cursor: copy;
+  }
+
+  .project-facts .developer-link {
+    color: var(--brand-600);
   }
 
   .project-prose {

@@ -53,6 +53,10 @@ import { assetHref, href } from '../lib/urls';
             </label>
             <label>链接文字<input name="linkLabel" value="访问作品" /></label>
             <label>链接地址<input name="linkUrl" type="url" placeholder="https://example.com" /></label>
+            <label class="full">
+              下载直链（留空则不显示下载按钮）
+              <input name="downloadUrl" type="url" placeholder="https://example.com/app.apk" />
+            </label>
           </fieldset>
 
           <fieldset>
@@ -143,6 +147,7 @@ import { assetHref, href } from '../lib/urls';
     const cover = String(data.get('cover') ?? '').trim();
     const linkLabel = String(data.get('linkLabel') ?? '').trim();
     const linkUrl = String(data.get('linkUrl') ?? '').trim();
+    const downloadUrl = String(data.get('downloadUrl') ?? '').trim();
 
     const frontmatter = [
       '---',
@@ -157,6 +162,7 @@ import { assetHref, href } from '../lib/urls';
       ...(screenshots.length
         ? ['screenshots:', ...screenshots.map((item) => `  - ${quoted(item)}`)]
         : ['screenshots: []']),
+      ...(downloadUrl ? [`downloadUrl: ${quoted(downloadUrl)}`] : []),
       ...(linkLabel && linkUrl
         ? ['links:', `  - label: ${quoted(linkLabel)}`, `    url: ${quoted(linkUrl)}`]
         : ['links: []']),

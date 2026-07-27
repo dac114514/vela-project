@@ -15,6 +15,15 @@ function normalizeId(id: string) {
   return id.replace(/\.(md|mdx)$/i, '').replaceAll('\\', '/');
 }
 
+export function projectSlugFromPackage(packageName: string) {
+  return packageName
+    .trim()
+    .replace(/^com\./i, '')
+    .replace(/\./g, '_')
+    .replace(/[^a-z0-9_-]/gi, '')
+    .toLowerCase();
+}
+
 function getGitModifiedAt(entry: ProjectEntry) {
   if (entry.data.updatedAt) return entry.data.updatedAt;
   const filePath = entry.filePath;
@@ -54,12 +63,12 @@ export async function getProjects(): Promise<ProjectRecord[]> {
   const entries = await getCollection('projects');
   return entries
     .map((entry) => {
-      const slug = normalizeId(entry.id);
-      const [category = '未分类'] = slug.split('/');
+      const sourcePath = normalizeId(entry.id);
+      const [category = '未分类'] = sourcePath.split('/');
       return {
         entry,
         category,
-        slug,
+        slug: projectSlugFromPackage(entry.data.packageName),
         modifiedAt: getGitModifiedAt(entry)
       };
     })

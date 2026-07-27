@@ -1,5 +1,5 @@
 ---
-import { Images } from '@lucide/astro';
+import { ChevronLeft, ChevronRight, Images, X } from '@lucide/astro';
 import { assetHref } from '../lib/urls';
 
 interface Props {
@@ -38,10 +38,16 @@ const { screenshots, title } = Astro.props;
     </div>
 
     <dialog class="lightbox" data-lightbox aria-label="截图大图浏览">
-      <button class="dialog-close" type="button" data-lightbox-close aria-label="关闭">×</button>
-      <button class="lightbox-nav lightbox-prev" type="button" data-lightbox-prev aria-label="上一张">‹</button>
+      <button class="dialog-close" type="button" data-lightbox-close aria-label="关闭">
+        <X size={20} aria-hidden="true" />
+      </button>
+      <button class="lightbox-nav lightbox-prev" type="button" data-lightbox-prev aria-label="上一张">
+        <ChevronLeft size={24} aria-hidden="true" />
+      </button>
       <img data-lightbox-image src="" alt="" />
-      <button class="lightbox-nav lightbox-next" type="button" data-lightbox-next aria-label="下一张">›</button>
+      <button class="lightbox-nav lightbox-next" type="button" data-lightbox-next aria-label="下一张">
+        <ChevronRight size={24} aria-hidden="true" />
+      </button>
       <p data-lightbox-count></p>
     </dialog>
   </section>

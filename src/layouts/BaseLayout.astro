@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { House, Info, LayoutGrid, Search } from '@lucide/astro';
+import { House, Info, LayoutGrid, Menu, Search, UserRound, X } from '@lucide/astro';
 import { siteInfo } from '../data/site';
 import { assetHref, href } from '../lib/urls';
 
@@ -52,9 +52,22 @@ const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).hre
           <span>{siteInfo.shortName}</span>
         </a>
 
-        <nav class="main-nav" aria-label="主导航">
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-label="打开菜单"
+          aria-expanded="false"
+          aria-controls="main-navigation"
+          data-menu-toggle
+        >
+          <Menu class="menu-open-icon" size={22} aria-hidden="true" />
+          <X class="menu-close-icon" size={22} aria-hidden="true" />
+        </button>
+
+        <nav id="main-navigation" class="main-nav" aria-label="主导航" data-main-nav>
           <a href={href('/')}><House size={16} aria-hidden="true" />首页</a>
           <a href={href('/category/all')}><LayoutGrid size={16} aria-hidden="true" />全部作品</a>
+          <a href={href('/developer')}><UserRound size={16} aria-hidden="true" />开发者</a>
           <a href={href('/about')}><Info size={16} aria-hidden="true" />关于工作室</a>
         </nav>
 
@@ -72,8 +85,51 @@ const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).hre
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <small>蓝桥工作室作品展示集</small>
+        <div class="footer-brand">
+          <img src={assetHref('/brand/mark.webp')} alt="" width="38" height="38" />
+          <div>
+            <strong>蓝桥工作室作品展示集</strong>
+            <p>轻巧、实用、有趣的小程序作品。</p>
+          </div>
+        </div>
+        <nav class="footer-links" aria-label="页脚导航">
+          <a href={href('/category/all')}>全部作品</a>
+          <a href={href('/developer')}>开发者</a>
+          <a href={href('/about')}>关于</a>
+        </nav>
+        <small>{siteInfo.copyright}</small>
       </div>
     </footer>
+    <script>
+      const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const mainNav = document.querySelector<HTMLElement>('[data-main-nav]');
+
+      const closeMenu = () => {
+        menuToggle?.setAttribute('aria-expanded', 'false');
+        menuToggle?.setAttribute('aria-label', '打开菜单');
+        mainNav?.removeAttribute('data-open');
+      };
+
+      menuToggle?.addEventListener('click', () => {
+        const open = menuToggle.getAttribute('aria-expanded') === 'true';
+        if (open) {
+          closeMenu();
+        } else {
+          menuToggle.setAttribute('aria-expanded', 'true');
+          menuToggle.setAttribute('aria-label', '关闭菜单');
+          mainNav?.setAttribute('data-open', '');
+        }
+      });
+
+      mainNav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeMenu();
+      });
+      document.addEventListener('click', (event) => {
+        if (!mainNav?.hasAttribute('data-open')) return;
+        if (mainNav.contains(event.target as Node) || menuToggle?.contains(event.target as Node)) return;
+        closeMenu();
+      });
+    </script>
   </body>
 </html>
