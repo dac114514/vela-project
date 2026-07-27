@@ -161,7 +161,10 @@ import { assetHref, href } from '../lib/urls';
 
   @media (max-width: 640px) {
     .author-card {
-      grid-template-columns: 1fr;
+      grid-template-columns: 80px minmax(0, 1fr);
+      align-items: start;
+      gap: 16px;
+      padding: 18px;
     }
 
     .author-avatar {
