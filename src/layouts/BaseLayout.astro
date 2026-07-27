@@ -32,7 +32,7 @@ const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).hre
     <meta name="description" content={description} />
     {noIndex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href={assetHref('/brand/logo-transparent.webp')} />
+    <link rel="icon" href={assetHref('/brand/mark.webp')} />
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={siteInfo.shortName} />
@@ -47,7 +47,7 @@ const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).hre
     <header class="site-header">
       <div class="container header-inner">
         <a class="brand-link" href={href('/')} aria-label="返回首页">
-          <img src={assetHref('/brand/logo-transparent.webp')} alt="" width="44" height="44" />
+          <img src={assetHref('/brand/mark.webp')} alt="" width="44" height="44" />
           <span>{siteInfo.shortName}</span>
         </a>
 

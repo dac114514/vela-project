@@ -8,11 +8,8 @@ interface Props {
 }
 
 const { project, showCategory = true } = Astro.props;
-const { entry, category, slug, modifiedAt } = project;
+const { entry, category, slug } = project;
 const fallback = entry.data.title.slice(0, 1);
-const dateLabel = modifiedAt.getTime() > 0
-  ? new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' }).format(modifiedAt)
-  : '';
 ---
 
 <article class="project-card">
@@ -32,7 +29,6 @@ const dateLabel = modifiedAt.getTime() > 0
       <div class="project-meta">
         <span>作者：{entry.data.author}</span>
         <span>版本 {entry.data.version}</span>
-        {dateLabel && <time datetime={modifiedAt.toISOString()}>{dateLabel}</time>}
       </div>
     </div>
     <span class="card-arrow" aria-hidden="true">→</span>

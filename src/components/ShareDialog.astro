@@ -136,11 +136,7 @@ const imageUrl = assetHref(image);
 
       const context = cardCanvas.getContext('2d');
       if (!context) return;
-      const gradient = context.createLinearGradient(0, 0, 1200, 630);
-      gradient.addColorStop(0, '#f7fbff');
-      gradient.addColorStop(0.6, '#eaf3ff');
-      gradient.addColorStop(1, '#d9e9ff');
-      context.fillStyle = gradient;
+      context.fillStyle = '#f2f7ff';
       context.fillRect(0, 0, 1200, 630);
 
       context.fillStyle = '#0757d3';

@@ -15,7 +15,7 @@ const perSection = 6;
     <div class="container hero-grid">
       <div class="hero-copy">
         <span class="eyebrow">蓝桥工作室作品集</span>
-        <h1>小作品，也值得被认真展示。</h1>
+        <h1>发现好用、有趣的小程序</h1>
         <p>{siteInfo.intro}</p>
 
         <form class="hero-search" action={href('/search')} role="search">
@@ -77,22 +77,22 @@ const perSection = 6;
 
 <style>
   .home-hero {
-    padding: 66px 0 38px;
+    padding: 52px 0 24px;
   }
 
   .hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 500px);
     align-items: center;
-    gap: 54px;
+    gap: 48px;
   }
 
   .hero-copy h1 {
-    max-width: 670px;
+    max-width: 620px;
     margin: 0;
-    font-size: clamp(2.65rem, 7vw, 5.7rem);
-    line-height: 0.98;
-    letter-spacing: -0.065em;
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.05em;
   }
 
   .hero-copy > p {
@@ -124,12 +124,14 @@ const perSection = 6;
   }
 
   .hero-search button {
+    flex: 0 0 auto;
     border: 0;
     border-radius: 12px;
     padding: 10px 20px;
-    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    background: var(--brand-600);
     color: white;
     font-weight: 800;
+    white-space: nowrap;
     cursor: pointer;
   }
 
@@ -167,18 +169,22 @@ const perSection = 6;
   .brand-poster {
     position: relative;
     border: 1px solid var(--line);
-    border-radius: 34px;
+    border-radius: 24px;
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-small);
     overflow: hidden;
-    transform: rotate(1.1deg);
+  }
+
+  .brand-poster picture {
+    display: block;
   }
 
   .brand-poster img {
     display: block;
     width: 100%;
+    height: auto;
     aspect-ratio: 16 / 9;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   .poster-note {
@@ -194,7 +200,7 @@ const perSection = 6;
     background: rgba(255, 255, 255, 0.88);
     color: #102247;
     box-shadow: 0 12px 34px rgba(20, 64, 130, 0.17);
-    backdrop-filter: blur(18px);
+    backdrop-filter: blur(10px);
   }
 
   .poster-note span {
@@ -210,11 +216,11 @@ const perSection = 6;
   }
 
   .category-sections {
-    padding-top: 36px;
+    padding-top: 20px;
   }
 
   .category-section {
-    padding-top: 72px;
+    padding-top: 58px;
   }
 
   .section-link {
@@ -231,7 +237,6 @@ const perSection = 6;
 
     .brand-poster {
       max-width: 680px;
-      transform: none;
     }
   }
 
