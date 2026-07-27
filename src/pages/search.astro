@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getProjects } from '../lib/projects';
+import { href } from '../lib/urls';
+
+const projects = await getProjects();
+---
+
+<BaseLayout title="搜索作品" description="搜索蓝桥工作室作品。" noIndex>
+  <section class="search-page">
+    <div class="container">
+      <a class="back-link" href={href('/')}>← 返回首页</a>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">查找作品</span>
+          <h1>搜索</h1>
+        </div>
+        <p data-result-summary>输入作品名称、包名、作者、简介或分类。</p>
+      </div>
+
+      <form class="search-form" action={href('/search')} role="search">
+        <label class="sr-only" for="page-search-input">搜索作品</label>
+        <input id="page-search-input" name="q" type="search" placeholder="输入关键词" data-search-input autofocus />
+        <button type="submit">搜索</button>
+      </form>
+
+      <div class="project-grid search-results" data-search-results>
+        {projects.map((project) => {
+          const haystack = [
+            project.entry.data.title,
+            project.entry.data.packageName,
+            project.entry.data.author,
+            project.entry.data.description,
+            project.category
+          ].join(' ').toLocaleLowerCase('zh-CN');
+          return (
+            <div data-search-card data-search-text={haystack}>
+              <ProjectCard project={project} />
+            </div>
+          );
+        })}
+      </div>
+
+      <div class="empty-search" data-empty-search hidden>
+        <strong>没有找到匹配的作品</strong>
+        <p>换一个关键词，或查看全部作品。</p>
+        <a class="button button-primary" href={href('/category/all')}>查看全部作品</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-search-card]')];
+  const summary = document.querySelector<HTMLElement>('[data-result-summary]');
+  const empty = document.querySelector<HTMLElement>('[data-empty-search]');
+
+  const query = new URLSearchParams(window.location.search).get('q')?.trim() ?? '';
+  if (input) input.value = query;
+  const normalized = query.toLocaleLowerCase('zh-CN');
+  let visible = 0;
+
+  cards.forEach((card) => {
+    const matches = !normalized || (card.dataset.searchText ?? '').includes(normalized);
+    card.hidden = !matches;
+    if (matches) visible += 1;
+  });
+
+  if (summary) {
+    summary.textContent = query
+      ? `“${query}” 找到 ${visible} 件作品。`
+      : `当前收录 ${visible} 件作品。`;
+  }
+  if (empty) empty.hidden = visible !== 0;
+</script>
+
+<style>
+  .search-page {
+    padding: 66px 0 30px;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 34px;
+    color: var(--brand-600);
+    font-weight: 750;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+  }
+
+  .search-form {
+    display: flex;
+    max-width: 780px;
+    gap: 8px;
+    margin: 32px 0 42px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .search-form input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 11px 13px;
+    color: var(--ink-950);
+    background: transparent;
+  }
+
+  .search-form button {
+    border: 0;
+    border-radius: 13px;
+    padding: 10px 24px;
+    background: var(--brand-600);
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .search-results > div {
+    min-width: 0;
+  }
+
+  .empty-search {
+    border: 1px dashed var(--line);
+    border-radius: 24px;
+    padding: 54px 24px;
+    background: var(--surface);
+    text-align: center;
+  }
+
+  .empty-search strong {
+    font-size: 1.4rem;
+  }
+
+  .empty-search p {
+    color: var(--ink-600);
+  }
+
+  @media (max-width: 640px) {
+    .search-form {
+      flex-direction: column;
+    }
+  }
+</style>

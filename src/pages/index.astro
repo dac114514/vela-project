@@ -1,0 +1,255 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { siteInfo } from '../data/site';
+import { getCategoryGroups, getProjects } from '../lib/projects';
+import { assetHref, href } from '../lib/urls';
+
+const groups = await getCategoryGroups();
+const projects = await getProjects();
+const perSection = 6;
+---
+
+<BaseLayout>
+  <section class="home-hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">蓝桥工作室作品集</span>
+        <h1>小作品，也值得被认真展示。</h1>
+        <p>{siteInfo.intro}</p>
+
+        <form class="hero-search" action={href('/search')} role="search">
+          <label class="sr-only" for="hero-search-input">搜索作品名称、作者或包名</label>
+          <input id="hero-search-input" name="q" type="search" placeholder="搜索作品名称、作者或包名" />
+          <button type="submit">搜索作品</button>
+        </form>
+
+        <nav class="category-nav" aria-label="作品分类">
+          <a href={href('/category/all')}>全部作品 <span>{projects.length}</span></a>
+          {groups.map((group) => (
+            <a href={href(`/category/${group.name}`)}>{group.name} <span>{group.items.length}</span></a>
+          ))}
+        </nav>
+      </div>
+
+      <div class="brand-poster">
+        <picture>
+          <source
+            srcset={assetHref('/brand/banner-dark-16x9.webp')}
+            media="(prefers-color-scheme: dark)"
+          />
+          <img
+            src={assetHref('/brand/banner-light-16x9.webp')}
+            alt="蓝桥工作室"
+            width="1672"
+            height="941"
+          />
+        </picture>
+        <div class="poster-note">
+          <span>{projects.length}</span>
+          <p>件作品正在展出</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container category-sections">
+    {groups.map((group) => (
+      <section class="category-section" aria-labelledby={`category-${group.name}`}>
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">作品分类</span>
+            <h2 id={`category-${group.name}`}>{group.name}</h2>
+          </div>
+          <a class="section-link" href={href(`/category/${group.name}`)}>
+            查看全部 {group.items.length} 件作品
+          </a>
+        </div>
+        <div class="project-grid">
+          {group.items.slice(0, perSection).map((project) => (
+            <ProjectCard project={project} showCategory={false} />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .home-hero {
+    padding: 66px 0 38px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+    align-items: center;
+    gap: 54px;
+  }
+
+  .hero-copy h1 {
+    max-width: 670px;
+    margin: 0;
+    font-size: clamp(2.65rem, 7vw, 5.7rem);
+    line-height: 0.98;
+    letter-spacing: -0.065em;
+  }
+
+  .hero-copy > p {
+    max-width: 650px;
+    margin: 26px 0;
+    color: var(--ink-600);
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+  }
+
+  .hero-search {
+    display: flex;
+    max-width: 650px;
+    gap: 8px;
+    padding: 7px;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .hero-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 10px 12px;
+    color: var(--ink-950);
+    background: transparent;
+  }
+
+  .hero-search button {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .category-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .category-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 11px 7px 14px;
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    color: var(--ink-800);
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  .category-nav span {
+    display: grid;
+    place-items: center;
+    min-width: 23px;
+    height: 23px;
+    border-radius: 999px;
+    background: var(--brand-100);
+    color: var(--brand-700);
+    font-size: 0.72rem;
+  }
+
+  .brand-poster {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 34px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transform: rotate(1.1deg);
+  }
+
+  .brand-poster img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .poster-note {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.76);
+    border-radius: 18px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #102247;
+    box-shadow: 0 12px 34px rgba(20, 64, 130, 0.17);
+    backdrop-filter: blur(18px);
+  }
+
+  .poster-note span {
+    color: #0757d3;
+    font-size: 1.6rem;
+    font-weight: 900;
+  }
+
+  .poster-note p {
+    margin: 0;
+    font-size: 0.84rem;
+    font-weight: 750;
+  }
+
+  .category-sections {
+    padding-top: 36px;
+  }
+
+  .category-section {
+    padding-top: 72px;
+  }
+
+  .section-link {
+    border-bottom: 1px solid currentColor;
+    color: var(--brand-600);
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .brand-poster {
+      max-width: 680px;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .home-hero {
+      padding-top: 42px;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2.55rem, 15vw, 4.2rem);
+    }
+
+    .hero-search {
+      flex-direction: column;
+    }
+
+    .hero-search button {
+      width: 100%;
+    }
+  }
+</style>

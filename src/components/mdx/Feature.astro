@@ -1,0 +1,11 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<section class="mdx-feature">
+  <h3>{title}</h3>
+  <div><slot /></div>
+</section>

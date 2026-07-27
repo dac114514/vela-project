@@ -1,0 +1,236 @@
+---
+import { assetHref } from '../lib/urls';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+
+const { title, description, image = '/brand/banner-light-16x9.webp' } = Astro.props;
+const imageUrl = assetHref(image);
+---
+
+<button class="button button-secondary" type="button" data-share-open>分享作品</button>
+
+<dialog
+  class="share-dialog"
+  data-share-dialog
+  data-share-title={title}
+  data-share-description={description}
+  data-share-image={imageUrl}
+>
+  <div class="share-dialog-head">
+    <div>
+      <span class="eyebrow">分享作品</span>
+      <h2>{title}</h2>
+    </div>
+    <button class="dialog-close" type="button" data-share-close aria-label="关闭">×</button>
+  </div>
+
+  <div class="share-tabs" role="tablist" aria-label="分享方式">
+    <button type="button" role="tab" aria-selected="true" data-share-tab="link">链接</button>
+    <button type="button" role="tab" aria-selected="false" data-share-tab="image">图片</button>
+    <button type="button" role="tab" aria-selected="false" data-share-tab="qq">QQ</button>
+    <button type="button" role="tab" aria-selected="false" data-share-tab="wechat">微信</button>
+  </div>
+
+  <section class="share-panel" data-share-panel="link">
+    <label for="share-url">作品链接</label>
+    <div class="copy-row">
+      <input id="share-url" type="url" readonly data-share-url />
+      <button class="button button-primary" type="button" data-copy-link>复制链接</button>
+    </div>
+  </section>
+
+  <section class="share-panel" data-share-panel="image" hidden>
+    <canvas class="share-card-canvas" width="1200" height="630" data-share-card></canvas>
+    <button class="button button-primary" type="button" data-save-image>保存分享图片</button>
+  </section>
+
+  <section class="share-panel share-action-panel" data-share-panel="qq" hidden>
+    <div class="share-platform-mark">QQ</div>
+    <div>
+      <h3>分享到 QQ</h3>
+      <p>打开 QQ 分享窗口，并带上当前作品链接。</p>
+      <button class="button button-primary" type="button" data-share-qq>打开 QQ 分享</button>
+    </div>
+  </section>
+
+  <section class="share-panel share-action-panel" data-share-panel="wechat" hidden>
+    <canvas class="qr-canvas" width="240" height="240" data-share-qr></canvas>
+    <div>
+      <h3>分享到微信</h3>
+      <p>使用微信扫描二维码，或保存带二维码的分享图片后发送给好友。</p>
+      <button class="button button-primary" type="button" data-wechat-image>查看分享图片</button>
+    </div>
+  </section>
+
+  <p class="share-feedback" role="status" aria-live="polite" data-share-feedback></p>
+</dialog>
+
+<script>
+  import QRCode from 'qrcode';
+
+  const dialogs = document.querySelectorAll<HTMLDialogElement>('[data-share-dialog]');
+
+  function wrapText(
+    context: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    maxWidth: number,
+    lineHeight: number,
+    maxLines = 2
+  ) {
+    const characters = [...text];
+    const lines: string[] = [];
+    let line = '';
+
+    for (const character of characters) {
+      const next = line + character;
+      if (context.measureText(next).width > maxWidth && line) {
+        lines.push(line);
+        line = character;
+        if (lines.length === maxLines - 1) break;
+      } else {
+        line = next;
+      }
+    }
+    if (line) lines.push(line);
+    lines.slice(0, maxLines).forEach((item, index) => context.fillText(item, x, y + index * lineHeight));
+  }
+
+  async function loadImage(src: string) {
+    return await new Promise<HTMLImageElement | null>((resolve) => {
+      if (!src) return resolve(null);
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => resolve(null);
+      image.src = src;
+    });
+  }
+
+  for (const dialog of dialogs) {
+    const trigger = dialog.previousElementSibling as HTMLButtonElement | null;
+    const urlInput = dialog.querySelector<HTMLInputElement>('[data-share-url]');
+    const qrCanvas = dialog.querySelector<HTMLCanvasElement>('[data-share-qr]');
+    const cardCanvas = dialog.querySelector<HTMLCanvasElement>('[data-share-card]');
+    const feedback = dialog.querySelector<HTMLElement>('[data-share-feedback]');
+    const title = dialog.dataset.shareTitle ?? document.title;
+    const description = dialog.dataset.shareDescription ?? '';
+    const imageSrc = dialog.dataset.shareImage ?? '';
+
+    const buildAssets = async () => {
+      const url = window.location.href;
+      if (urlInput) urlInput.value = url;
+      if (qrCanvas) {
+        await QRCode.toCanvas(qrCanvas, url, {
+          width: 240,
+          margin: 2,
+          errorCorrectionLevel: 'H',
+          color: { dark: '#0757d3', light: '#ffffff' }
+        });
+      }
+      if (!cardCanvas) return;
+
+      const context = cardCanvas.getContext('2d');
+      if (!context) return;
+      const gradient = context.createLinearGradient(0, 0, 1200, 630);
+      gradient.addColorStop(0, '#f7fbff');
+      gradient.addColorStop(0.6, '#eaf3ff');
+      gradient.addColorStop(1, '#d9e9ff');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 1200, 630);
+
+      context.fillStyle = '#0757d3';
+      context.fillRect(0, 0, 18, 630);
+      context.fillStyle = '#0d1c38';
+      context.font = '700 58px system-ui, sans-serif';
+      wrapText(context, title, 78, 142, 690, 72, 2);
+      context.fillStyle = '#4b5d78';
+      context.font = '30px system-ui, sans-serif';
+      wrapText(context, description, 78, 300, 680, 46, 3);
+      context.fillStyle = '#0757d3';
+      context.font = '700 25px system-ui, sans-serif';
+      context.fillText('蓝桥工作室作品集', 78, 536);
+      context.fillStyle = '#6c7d96';
+      context.font = '21px system-ui, sans-serif';
+      context.fillText(new URL(url).host, 78, 574);
+
+      const qrDataUrl = await QRCode.toDataURL(url, {
+        width: 260,
+        margin: 2,
+        errorCorrectionLevel: 'H',
+        color: { dark: '#0757d3', light: '#ffffff' }
+      });
+      const qrImage = await loadImage(qrDataUrl);
+      if (qrImage) {
+        context.fillStyle = '#ffffff';
+        context.beginPath();
+        context.roundRect(844, 152, 292, 326, 28);
+        context.fill();
+        context.drawImage(qrImage, 860, 168, 260, 260);
+        context.fillStyle = '#4b5d78';
+        context.font = '20px system-ui, sans-serif';
+        context.textAlign = 'center';
+        context.fillText('扫码查看作品', 990, 454);
+        context.textAlign = 'left';
+      }
+
+      const cover = await loadImage(imageSrc);
+      if (cover) {
+        context.save();
+        context.globalAlpha = 0.08;
+        context.drawImage(cover, 630, -40, 570, 710);
+        context.restore();
+      }
+    };
+
+    trigger?.addEventListener('click', async () => {
+      dialog.showModal();
+      await buildAssets();
+    });
+    dialog.querySelector('[data-share-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-share-tab]')];
+    const panels = [...dialog.querySelectorAll<HTMLElement>('[data-share-panel]')];
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const selected = tab.dataset.shareTab;
+        tabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab)));
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.sharePanel !== selected;
+        });
+      });
+    });
+
+    dialog.querySelector('[data-copy-link]')?.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(window.location.href);
+      if (feedback) feedback.textContent = '链接已复制。';
+    });
+    dialog.querySelector('[data-save-image]')?.addEventListener('click', () => {
+      if (!cardCanvas) return;
+      const link = document.createElement('a');
+      link.download = `${title}-分享图.png`;
+      link.href = cardCanvas.toDataURL('image/png');
+      link.click();
+      if (feedback) feedback.textContent = '分享图片已生成。';
+    });
+    dialog.querySelector('[data-share-qq]')?.addEventListener('click', () => {
+      const qqUrl = new URL('https://connect.qq.com/widget/shareqq/index.html');
+      qqUrl.searchParams.set('url', window.location.href);
+      qqUrl.searchParams.set('title', title);
+      qqUrl.searchParams.set('summary', description);
+      qqUrl.searchParams.set('pics', new URL(imageSrc, window.location.origin).href);
+      window.open(qqUrl, '_blank', 'noopener,noreferrer,width=760,height=640');
+    });
+    dialog.querySelector('[data-wechat-image]')?.addEventListener('click', () => {
+      const imageTab = tabs.find((tab) => tab.dataset.shareTab === 'image');
+      imageTab?.click();
+    });
+  }
+</script>

@@ -1,0 +1,86 @@
+---
+import '../styles/global.css';
+import { siteInfo } from '../data/site';
+import { assetHref, href } from '../lib/urls';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noIndex?: boolean;
+}
+
+const {
+  title = siteInfo.name,
+  description = siteInfo.description,
+  image = '/brand/banner-light-16x9.webp',
+  noIndex = false
+} = Astro.props;
+
+const pageTitle = title === siteInfo.name ? title : `${title}｜${siteInfo.shortName}`;
+const canonical = Astro.url.href;
+const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).href;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f8ff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#081326" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={assetHref('/brand/logo-transparent.webp')} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteInfo.shortName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={shareImage} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand-link" href={href('/')} aria-label="返回首页">
+          <img src={assetHref('/brand/logo-transparent.webp')} alt="" width="44" height="44" />
+          <span>{siteInfo.shortName}</span>
+        </a>
+
+        <nav class="main-nav" aria-label="主导航">
+          <a href={href('/')}>首页</a>
+          <a href={href('/category/all')}>全部作品</a>
+          <a href={href('/about')}>关于工作室</a>
+        </nav>
+
+        <form class="header-search" action={href('/search')} role="search">
+          <label class="sr-only" for="header-search-input">搜索作品</label>
+          <input id="header-search-input" name="q" type="search" placeholder="搜索作品" />
+          <button type="submit">搜索</button>
+        </form>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <strong>{siteInfo.shortName}</strong>
+          <p>{siteInfo.description}</p>
+        </div>
+        <div class="footer-links">
+          <a href={href('/about')}>关于工作室</a>
+          <a href={href('/category/all')}>全部作品</a>
+        </div>
+        <small>{siteInfo.copyright}</small>
+      </div>
+    </footer>
+  </body>
+</html>

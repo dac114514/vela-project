@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteInfo } from '../data/site';
+import { assetHref, href } from '../lib/urls';
+---
+
+<BaseLayout title="关于工作室" description="了解蓝桥工作室和独立作者纯水机。">
+  <section class="about-hero">
+    <div class="container about-grid">
+      <div>
+        <span class="eyebrow">关于我们</span>
+        <h1>蓝桥工作室</h1>
+        <p>{siteInfo.intro}</p>
+      </div>
+      <picture class="about-banner">
+        <source
+          srcset={assetHref('/brand/banner-dark-3x1.webp')}
+          media="(prefers-color-scheme: dark)"
+        />
+        <img src={assetHref('/brand/banner-light-3x1.webp')} alt="蓝桥工作室" />
+      </picture>
+    </div>
+  </section>
+
+  <section class="container author-section">
+    <div class="author-card">
+      <div class="author-avatar" aria-label={`${siteInfo.author.name}头像`}>
+        {siteInfo.author.avatar
+          ? <img src={assetHref(siteInfo.author.avatar)} alt={siteInfo.author.name} />
+          : <span>{siteInfo.author.name.slice(0, 1)}</span>}
+      </div>
+      <div>
+        <span class="eyebrow">{siteInfo.author.role}</span>
+        <h2>{siteInfo.author.name}</h2>
+        <p>{siteInfo.author.bio}</p>
+        <div class="contact-list">
+          {siteInfo.author.contacts.length > 0
+            ? siteInfo.author.contacts.map((contact) => (
+                <a class="button button-secondary" href={contact.url} target="_blank" rel="noreferrer">
+                  {contact.label}
+                </a>
+              ))
+            : <p class="contact-placeholder">联系方式将在内容配置中补充。</p>}
+        </div>
+      </div>
+    </div>
+
+    <div class="about-actions">
+      <a class="button button-primary" href={href('/category/all')}>浏览全部作品</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-hero {
+    padding: 72px 0 30px;
+  }
+
+  .about-grid {
+    display: grid;
+    gap: 34px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(3rem, 9vw, 6.6rem);
+    line-height: 1;
+    letter-spacing: -0.06em;
+  }
+
+  .about-grid p {
+    max-width: 720px;
+    margin: 20px 0 0;
+    color: var(--ink-600);
+    font-size: 1.15rem;
+  }
+
+  .about-banner {
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: 30px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .about-banner img {
+    display: block;
+    width: 100%;
+  }
+
+  .author-section {
+    padding-top: 62px;
+  }
+
+  .author-card {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 30px;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 32px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .author-avatar {
+    display: grid;
+    place-items: center;
+    width: 160px;
+    height: 160px;
+    border-radius: 32px;
+    background: linear-gradient(145deg, var(--brand-400), var(--brand-700));
+    color: white;
+    font-size: 4rem;
+    font-weight: 900;
+    overflow: hidden;
+  }
+
+  .author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .author-card h2 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .author-card p {
+    color: var(--ink-600);
+  }
+
+  .contact-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+
+  .contact-placeholder {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+
+  .about-actions {
+    margin-top: 24px;
+  }
+
+  @media (max-width: 640px) {
+    .author-card {
+      grid-template-columns: 1fr;
+    }
+
+    .author-avatar {
+      width: 112px;
+      height: 112px;
+      border-radius: 25px;
+      font-size: 3rem;
+    }
+  }
+</style>

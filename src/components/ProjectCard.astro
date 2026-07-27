@@ -1,0 +1,40 @@
+---
+import type { ProjectRecord } from '../lib/projects';
+import { assetHref, href } from '../lib/urls';
+
+interface Props {
+  project: ProjectRecord;
+  showCategory?: boolean;
+}
+
+const { project, showCategory = true } = Astro.props;
+const { entry, category, slug, modifiedAt } = project;
+const fallback = entry.data.title.slice(0, 1);
+const dateLabel = modifiedAt.getTime() > 0
+  ? new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' }).format(modifiedAt)
+  : '';
+---
+
+<article class="project-card">
+  <a class="project-card-link" href={href(`/project/${slug}`)}>
+    <div class:list={['project-icon', { 'project-icon-fallback': !entry.data.icon }]}>
+      {entry.data.icon
+        ? <img src={assetHref(entry.data.icon)} alt="" loading="lazy" />
+        : <span aria-hidden="true">{fallback}</span>}
+    </div>
+    <div class="project-card-copy">
+      <div class="project-card-topline">
+        {showCategory && <span class="category-chip">{category}</span>}
+        {entry.data.status !== '已发布' && <span class="status-chip">{entry.data.status}</span>}
+      </div>
+      <h3>{entry.data.title}</h3>
+      <p>{entry.data.description}</p>
+      <div class="project-meta">
+        <span>作者：{entry.data.author}</span>
+        <span>版本 {entry.data.version}</span>
+        {dateLabel && <time datetime={modifiedAt.toISOString()}>{dateLabel}</time>}
+      </div>
+    </div>
+    <span class="card-arrow" aria-hidden="true">→</span>
+  </a>
+</article>

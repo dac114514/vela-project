@@ -1,0 +1,15 @@
+---
+import { assetHref } from '../../lib/urls';
+
+interface Props {
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+const { src, alt = '', caption } = Astro.props;
+---
+
+<figure class="mdx-media">
+  <img src={assetHref(src)} alt={alt} loading="lazy" />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

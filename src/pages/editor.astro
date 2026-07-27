@@ -1,0 +1,368 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { href } from '../lib/urls';
+---
+
+<BaseLayout title="MDX 项目编辑器" description="生成蓝桥工作室作品项目文件。" noIndex>
+  <section class="editor-page">
+    <div class="container">
+      <a class="back-link" href={href('/')}>← 返回作品集</a>
+      <div class="editor-heading">
+        <div>
+          <span class="eyebrow">内容工具</span>
+          <h1>MDX 项目编辑器</h1>
+          <p>填写信息后生成项目文件。当前版本不写入仓库，可复制或下载；未来可通过保存适配器接入后端。</p>
+        </div>
+        <div class="editor-state">
+          <span></span>
+          静态安全模式
+        </div>
+      </div>
+
+      <div class="editor-grid">
+        <form class="editor-form" data-editor-form>
+          <fieldset>
+            <legend>基本信息</legend>
+            <label>作品名称<input name="title" required value="新作品" /></label>
+            <label>文件名 slug<input name="slug" required value="new-project" pattern="[a-z0-9-]+" /></label>
+            <label>分类目录<input name="category" required value="精品区" /></label>
+            <label>包名<input name="packageName" required value="com.bluebridge.example" /></label>
+            <label>作者<input name="author" required value="纯水机" /></label>
+            <label>版本<input name="version" required value="1.0.0" /></label>
+            <label class="full">一句话简介<textarea name="description" required rows="3">请填写作品简介。</textarea></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>图片与链接</legend>
+            <label class="full">图标路径<input name="icon" placeholder="/projects/项目名/icon.webp" /></label>
+            <label class="full">封面路径<input name="cover" placeholder="/projects/项目名/cover.webp" /></label>
+            <label class="full">
+              截图路径（每行一个）
+              <textarea name="screenshots" rows="4" placeholder="/projects/项目名/screenshot-1.webp"></textarea>
+            </label>
+            <label>链接文字<input name="linkLabel" value="访问作品" /></label>
+            <label>链接地址<input name="linkUrl" type="url" placeholder="https://example.com" /></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>正文</legend>
+            <label class="full">
+              MDX 内容
+              <textarea name="body" rows="16">## 项目介绍
+
+在这里填写作品介绍。即使只有一句话，也会完整显示在项目详情页。
+
+## 主要特点
+
+- 特点一
+- 特点二</textarea>
+            </label>
+          </fieldset>
+        </form>
+
+        <aside class="editor-output">
+          <div class="output-head">
+            <div>
+              <span class="eyebrow">实时生成</span>
+              <strong data-output-path>精品区/new-project.mdx</strong>
+            </div>
+            <button type="button" class="button button-secondary" data-copy-mdx>复制</button>
+          </div>
+          <pre><code data-mdx-output></code></pre>
+          <div class="output-actions">
+            <button type="button" class="button button-primary" data-download-mdx>下载 MDX</button>
+            <button type="button" class="button button-secondary" data-provider-save disabled>
+              保存到后端
+            </button>
+          </div>
+          <p data-editor-feedback role="status" aria-live="polite"></p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  declare global {
+    interface Window {
+      velaMdxProvider?: {
+        save: (payload: { path: string; content: string }) => Promise<void>;
+      };
+    }
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-editor-form]');
+  const output = document.querySelector<HTMLElement>('[data-mdx-output]');
+  const pathOutput = document.querySelector<HTMLElement>('[data-output-path]');
+  const feedback = document.querySelector<HTMLElement>('[data-editor-feedback]');
+  const providerButton = document.querySelector<HTMLButtonElement>('[data-provider-save]');
+  let currentContent = '';
+  let currentPath = '';
+
+  const quoted = (value: string) => JSON.stringify(value);
+  const lines = (value: FormDataEntryValue | null) =>
+    String(value ?? '')
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+  const update = () => {
+    if (!form || !output || !pathOutput) return;
+    const data = new FormData(form);
+    const title = String(data.get('title') ?? '');
+    const slug = String(data.get('slug') ?? 'new-project');
+    const category = String(data.get('category') ?? '未分类');
+    const screenshots = lines(data.get('screenshots'));
+    const icon = String(data.get('icon') ?? '').trim();
+    const cover = String(data.get('cover') ?? '').trim();
+    const linkLabel = String(data.get('linkLabel') ?? '').trim();
+    const linkUrl = String(data.get('linkUrl') ?? '').trim();
+
+    const frontmatter = [
+      '---',
+      `title: ${quoted(title)}`,
+      `packageName: ${quoted(String(data.get('packageName') ?? ''))}`,
+      `author: ${quoted(String(data.get('author') ?? '纯水机'))}`,
+      `description: ${quoted(String(data.get('description') ?? ''))}`,
+      `version: ${quoted(String(data.get('version') ?? '1.0.0'))}`,
+      `status: "已发布"`,
+      ...(icon ? [`icon: ${quoted(icon)}`] : []),
+      ...(cover ? [`cover: ${quoted(cover)}`] : []),
+      ...(screenshots.length
+        ? ['screenshots:', ...screenshots.map((item) => `  - ${quoted(item)}`)]
+        : ['screenshots: []']),
+      ...(linkLabel && linkUrl
+        ? ['links:', `  - label: ${quoted(linkLabel)}`, `    url: ${quoted(linkUrl)}`]
+        : ['links: []']),
+      '---'
+    ].join('\n');
+
+    currentContent = `${frontmatter}\n\n${String(data.get('body') ?? '').trim()}\n`;
+    currentPath = `${category}/${slug}.mdx`;
+    output.textContent = currentContent;
+    pathOutput.textContent = currentPath;
+  };
+
+  form?.addEventListener('input', update);
+  update();
+
+  document.querySelector('[data-copy-mdx]')?.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(currentContent);
+    if (feedback) feedback.textContent = 'MDX 内容已复制。';
+  });
+
+  document.querySelector('[data-download-mdx]')?.addEventListener('click', () => {
+    const fileName = currentPath.split('/').at(-1) ?? 'project.mdx';
+    const blob = new Blob([currentContent], { type: 'text/markdown;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    if (feedback) feedback.textContent = `已生成 ${fileName}。`;
+  });
+
+  if (window.velaMdxProvider && providerButton) {
+    providerButton.disabled = false;
+    providerButton.addEventListener('click', async () => {
+      await window.velaMdxProvider?.save({ path: currentPath, content: currentContent });
+      if (feedback) feedback.textContent = '内容已通过保存适配器提交。';
+    });
+  }
+</script>
+
+<style>
+  .editor-page {
+    padding: 60px 0 30px;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 30px;
+    color: var(--brand-600);
+    font-weight: 750;
+  }
+
+  .editor-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 36px;
+  }
+
+  .editor-heading h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 7vw, 5.2rem);
+    line-height: 1;
+    letter-spacing: -0.055em;
+  }
+
+  .editor-heading p {
+    max-width: 760px;
+    color: var(--ink-600);
+  }
+
+  .editor-state {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 13px;
+    background: var(--surface);
+    color: var(--ink-600);
+    font-size: 0.82rem;
+    font-weight: 750;
+  }
+
+  .editor-state span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #27b96d;
+    box-shadow: 0 0 0 5px rgba(39, 185, 109, 0.12);
+  }
+
+  .editor-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+    align-items: start;
+    gap: 24px;
+  }
+
+  .editor-form {
+    display: grid;
+    gap: 18px;
+  }
+
+  fieldset {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 24px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  legend {
+    padding: 0 8px;
+    font-weight: 850;
+  }
+
+  label {
+    display: grid;
+    gap: 6px;
+    color: var(--ink-600);
+    font-size: 0.82rem;
+    font-weight: 750;
+  }
+
+  label.full {
+    grid-column: 1 / -1;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    outline: 0;
+    color: var(--ink-950);
+    background: var(--surface-soft);
+    font-weight: 500;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: var(--brand-400);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-200) 50%, transparent);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .editor-output {
+    position: sticky;
+    top: 96px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 20px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .output-head,
+  .output-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .output-head strong {
+    display: block;
+    word-break: break-all;
+  }
+
+  pre {
+    max-height: 620px;
+    margin: 18px 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    overflow: auto;
+    background: var(--surface-soft);
+    font-size: 0.8rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  [data-provider-save]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  [data-editor-feedback] {
+    min-height: 1.5em;
+    margin: 12px 0 0;
+    color: var(--brand-600);
+    font-size: 0.84rem;
+  }
+
+  @media (max-width: 980px) {
+    .editor-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .editor-output {
+      position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .editor-heading {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    fieldset {
+      grid-template-columns: 1fr;
+      padding: 18px;
+    }
+
+    label.full {
+      grid-column: auto;
+    }
+
+    .output-actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+</style>

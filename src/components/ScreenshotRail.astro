@@ -1,0 +1,79 @@
+---
+import { assetHref } from '../lib/urls';
+
+interface Props {
+  screenshots: string[];
+  title: string;
+}
+
+const { screenshots, title } = Astro.props;
+---
+
+{screenshots.length > 0 && (
+  <section class="content-section screenshot-section" aria-labelledby="screenshots-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">作品画面</span>
+        <h2 id="screenshots-title">应用截图</h2>
+      </div>
+      <p>横向滑动浏览，点击图片可放大查看。</p>
+    </div>
+
+    <div class="screenshot-rail" data-screenshot-rail tabindex="0" aria-label={`${title}截图列表`}>
+      {screenshots.map((src, index) => (
+        <button
+          class="screenshot-button"
+          type="button"
+          data-index={index}
+          data-src={assetHref(src)}
+          aria-label={`放大第 ${index + 1} 张截图`}
+        >
+          <img src={assetHref(src)} alt={`${title}截图 ${index + 1}`} loading="lazy" />
+        </button>
+      ))}
+    </div>
+
+    <dialog class="lightbox" data-lightbox aria-label="截图大图浏览">
+      <button class="dialog-close" type="button" data-lightbox-close aria-label="关闭">×</button>
+      <button class="lightbox-nav lightbox-prev" type="button" data-lightbox-prev aria-label="上一张">‹</button>
+      <img data-lightbox-image src="" alt="" />
+      <button class="lightbox-nav lightbox-next" type="button" data-lightbox-next aria-label="下一张">›</button>
+      <p data-lightbox-count></p>
+    </dialog>
+  </section>
+)}
+
+<script>
+  const rails = document.querySelectorAll<HTMLElement>('[data-screenshot-rail]');
+
+  for (const rail of rails) {
+    const section = rail.closest('.screenshot-section');
+    const dialog = section?.querySelector<HTMLDialogElement>('[data-lightbox]');
+    const image = dialog?.querySelector<HTMLImageElement>('[data-lightbox-image]');
+    const count = dialog?.querySelector<HTMLElement>('[data-lightbox-count]');
+    const buttons = [...rail.querySelectorAll<HTMLButtonElement>('[data-src]')];
+    if (!dialog || !image || !count || buttons.length === 0) continue;
+
+    let activeIndex = 0;
+    const show = (index: number) => {
+      activeIndex = (index + buttons.length) % buttons.length;
+      image.src = buttons[activeIndex].dataset.src ?? '';
+      image.alt = buttons[activeIndex].querySelector('img')?.alt ?? '';
+      count.textContent = `${activeIndex + 1} / ${buttons.length}`;
+    };
+
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', () => {
+        show(index);
+        dialog.showModal();
+      });
+    });
+
+    dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(activeIndex - 1));
+    dialog.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(activeIndex + 1));
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+</script>

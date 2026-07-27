@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCategoryGroups, getProjects, type ProjectRecord } from '../../lib/projects';
+import { href } from '../../lib/urls';
+
+export async function getStaticPaths() {
+  const groups = await getCategoryGroups();
+  const projects = await getProjects();
+  return [
+    {
+      params: { category: 'all' },
+      props: { name: '全部作品', projects }
+    },
+    ...groups.map((group) => ({
+      params: { category: group.name },
+      props: { name: group.name, projects: group.items }
+    }))
+  ];
+}
+
+interface Props {
+  name: string;
+  projects: ProjectRecord[];
+}
+
+const { name, projects } = Astro.props;
+---
+
+<BaseLayout title={name} description={`浏览蓝桥工作室的${name}。`}>
+  <section class="listing-hero">
+    <div class="container">
+      <a class="back-link" href={href('/')}>← 返回首页</a>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">作品分类</span>
+          <h1>{name}</h1>
+        </div>
+        <p>共 {projects.length} 件作品，默认根据项目文件的最近修改时间排列。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container listing-content">
+    <div class="project-grid">
+      {projects.map((project) => (
+        <ProjectCard project={project} showCategory={name === '全部作品'} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .listing-hero {
+    padding: 66px 0 20px;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 34px;
+    color: var(--brand-600);
+    font-weight: 750;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+  }
+
+  .listing-content {
+    padding-top: 34px;
+  }
+</style>
