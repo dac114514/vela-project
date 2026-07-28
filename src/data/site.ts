@@ -32,7 +32,7 @@ export const siteInfo = {
   author: {
     name: '纯水机',
     role: '开发者',
-    avatar: '',
+    avatar: '/authors/pure-water-machine/avatar.webp',
     bio: '蓝桥工作室室长，站长，独立开发者。',
     contacts: [] as Array<{ label: string; url: string }>
   }
