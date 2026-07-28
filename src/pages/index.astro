@@ -3,35 +3,58 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { ArrowUpRight, UserPlus } from '@lucide/astro';
 import { siteInfo } from '../data/site';
-import { getCategoryGroups } from '../lib/projects';
+import { getCategoryGroups, getProjects } from '../lib/projects';
 import { assetHref, href } from '../lib/urls';
 
 const groups = await getCategoryGroups();
+const projects = await getProjects();
+const featuredProjects = projects.slice(0, 2);
 const perSection = 6;
 ---
 
 <BaseLayout>
   <section class="banner-section" aria-label="推荐内容">
-    <div class="container banner-rail">
-      {siteInfo.banners.map((banner) => (
-        banner.kind === 'recruitment' ? (
-          <a class="market-banner recruitment-banner" href={href(banner.href)}>
-            <div class="banner-copy">
-              <span>{banner.eyebrow}</span>
-              <h2>{banner.title}</h2>
-              <p>{banner.description}</p>
-              <strong>{banner.action}<ArrowUpRight size={16} aria-hidden="true" /></strong>
-            </div>
-            <div class="recruitment-mark" aria-hidden="true">
-              <UserPlus size={54} stroke-width={1.6} />
-            </div>
-          </a>
-        ) : (
-          <a class="market-banner image-banner" href={href(banner.href)}>
-            <img src={assetHref(banner.image)} alt={banner.alt} />
-          </a>
-        )
-      ))}
+    <div class="container home-showcase">
+      <div
+        class="banner-rail"
+        role="region"
+        aria-roledescription="轮播图"
+        data-banner-rail
+      >
+        {siteInfo.banners.map((banner) => (
+          banner.kind === 'recruitment' ? (
+            <a
+              class="market-banner recruitment-banner"
+              href={href(banner.href)}
+              data-banner
+              data-qq-profile={banner.qq}
+            >
+              <div class="banner-copy">
+                <span>{banner.eyebrow}</span>
+                <h2>{banner.title}</h2>
+                <strong>{banner.action}<ArrowUpRight size={16} aria-hidden="true" /></strong>
+              </div>
+              <div class="recruitment-mark" aria-hidden="true">
+                <UserPlus size={54} stroke-width={1.6} />
+              </div>
+            </a>
+          ) : (
+            <a class="market-banner image-banner" href={href(banner.href)} data-banner>
+              <img src={assetHref(banner.image)} alt={banner.alt} />
+            </a>
+          )
+        ))}
+      </div>
+
+      <aside class="showcase-side" aria-labelledby="latest-apps-title">
+        <div class="showcase-heading">
+          <h2 id="latest-apps-title">最新作品</h2>
+          <a href={href('/category/all')}>查看全部</a>
+        </div>
+        <div class="showcase-apps">
+          {featuredProjects.map((project) => <ProjectCard project={project} />)}
+        </div>
+      </aside>
     </div>
   </section>
 
@@ -54,29 +77,97 @@ const perSection = 6;
   </div>
 </BaseLayout>
 
+<script>
+  const bannerRail = document.querySelector<HTMLElement>('[data-banner-rail]');
+  const bannerItems = bannerRail
+    ? [...bannerRail.querySelectorAll<HTMLElement>('[data-banner]')]
+    : [];
+
+  if (bannerRail && bannerItems.length > 1) {
+    let activeIndex = 0;
+    let timer = 0;
+
+    const start = () => {
+      window.clearInterval(timer);
+      timer = window.setInterval(() => {
+        activeIndex = (activeIndex + 1) % bannerItems.length;
+        bannerItems[activeIndex].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
+      }, 5600);
+    };
+
+    bannerRail.addEventListener('pointerenter', () => window.clearInterval(timer));
+    bannerRail.addEventListener('pointerleave', start);
+    bannerRail.addEventListener('focusin', () => window.clearInterval(timer));
+    bannerRail.addEventListener('focusout', start);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) window.clearInterval(timer);
+      else start();
+    });
+    start();
+  }
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-qq-profile]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const qq = link.dataset.qqProfile;
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (!qq || !isMobile) return;
+
+      event.preventDefault();
+      let fallbackTimer = window.setTimeout(() => {
+        window.location.href = link.href;
+      }, 1300);
+
+      const cancelFallback = () => {
+        if (!document.hidden) return;
+        window.clearTimeout(fallbackTimer);
+        document.removeEventListener('visibilitychange', cancelFallback);
+      };
+
+      document.addEventListener('visibilitychange', cancelFallback);
+      window.location.href =
+        `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qq}&card_type=person&source=qrcode`;
+    });
+  });
+</script>
+
 <style>
   .banner-section {
     padding-top: 28px;
   }
 
+  .home-showcase {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 24px;
+  }
+
   .banner-rail {
     display: grid;
-    grid-auto-columns: min(88%, 980px);
+    grid-auto-columns: 100%;
     grid-auto-flow: column;
+    min-width: 0;
     gap: 16px;
-    padding-block: 4px 18px;
+    padding: 0;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
-    scrollbar-color: var(--brand-200) transparent;
+    scrollbar-width: none;
+  }
+
+  .banner-rail::-webkit-scrollbar {
+    display: none;
   }
 
   .market-banner {
     position: relative;
     display: block;
-    aspect-ratio: 3 / 1;
-    min-height: 230px;
+    aspect-ratio: 16 / 9;
+    min-height: 0;
     border: 1px solid color-mix(in srgb, var(--line) 76%, transparent);
     border-radius: 26px;
     box-shadow: var(--shadow-small);
@@ -88,7 +179,7 @@ const perSection = 6;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 34%;
     align-items: center;
-    padding: clamp(28px, 5vw, 62px);
+    padding: clamp(24px, 4vw, 46px);
     color: white;
     background:
       radial-gradient(circle at 84% 26%, rgba(105, 185, 255, 0.42), transparent 30%),
@@ -111,12 +202,6 @@ const perSection = 6;
     font-size: clamp(1.8rem, 4vw, 3.5rem);
     line-height: 1.08;
     letter-spacing: -0.045em;
-  }
-
-  .banner-copy p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.78);
-    font-size: clamp(0.86rem, 1.6vw, 1.05rem);
   }
 
   .banner-copy strong {
@@ -145,6 +230,45 @@ const perSection = 6;
     transform: rotate(-9deg);
   }
 
+  .showcase-side {
+    min-width: 0;
+    border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+    border-radius: 26px;
+    padding: 16px;
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    box-shadow: var(--shadow-small);
+  }
+
+  .showcase-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 5px;
+    padding-inline: 6px;
+  }
+
+  .showcase-heading h2 {
+    margin: 0;
+    font-size: 1.18rem;
+    letter-spacing: -0.025em;
+  }
+
+  .showcase-heading a {
+    color: var(--brand-600);
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .showcase-apps {
+    display: grid;
+    gap: 2px;
+  }
+
+  .showcase-side :global(.project-card-link) {
+    min-height: 108px;
+  }
+
   .image-banner {
     background: #061b43;
   }
@@ -157,7 +281,7 @@ const perSection = 6;
   }
 
   .category-sections {
-    padding-top: 5px;
+    padding-top: 14px;
   }
 
   .category-section {
@@ -170,48 +294,59 @@ const perSection = 6;
     font-weight: 800;
   }
 
+  @media (max-width: 800px) {
+    .home-showcase {
+      grid-template-columns: 1fr;
+    }
+
+    .showcase-side {
+      display: none;
+    }
+  }
+
   @media (max-width: 640px) {
     .banner-section {
       padding-top: 16px;
     }
 
     .banner-rail {
-      grid-auto-columns: 92%;
+      grid-auto-columns: 100%;
       gap: 10px;
-      padding-bottom: 12px;
     }
 
     .market-banner {
-      min-height: 190px;
-      aspect-ratio: 4 / 2.4;
-      border-radius: 20px;
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
     }
 
     .recruitment-banner {
       grid-template-columns: minmax(0, 1fr) 92px;
-      gap: 8px;
-      padding: 24px;
+      gap: 14px;
+      padding: 20px;
     }
 
     .banner-copy h2 {
-      font-size: clamp(1.55rem, 7vw, 2rem);
-    }
-
-    .banner-copy p {
-      display: none;
+      margin-block: 5px;
+      font-size: clamp(1.35rem, 6vw, 1.8rem);
     }
 
     .banner-copy strong {
-      margin-top: 14px;
+      margin-top: 9px;
+      font-size: 0.82rem;
+    }
+
+    .banner-copy > span {
+      font-size: 0.7rem;
     }
 
     .recruitment-mark {
-      width: 84px;
+      width: 86px;
       border-radius: 30px;
     }
 
     .recruitment-mark :global(svg) {
-      width: 38px;
+      width: 40px;
     }
 
     .category-section {

@@ -8,25 +8,19 @@ export const siteInfo = {
     {
       kind: 'recruitment',
       eyebrow: '加入蓝桥',
-      title: '一起把好点子做成作品',
-      description: '寻找喜欢设计、开发与折腾新设备的创作者。',
+      title: '寻找志同道合的同伴',
       action: '了解招募',
-      href: '/developer'
-    },
-    {
-      kind: 'brand',
-      image: '/brand/banner-dark-3x1.webp',
-      alt: '蓝桥工作室',
-      href: '/about'
+      href: 'https://user.qzone.qq.com/1252326240',
+      qq: '1252326240'
     }
   ] as Array<
     | {
         kind: 'recruitment';
         eyebrow: string;
         title: string;
-        description: string;
         action: string;
         href: string;
+        qq: string;
       }
     | {
         kind: 'brand';

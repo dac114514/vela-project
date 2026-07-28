@@ -149,8 +149,6 @@ const authorAvatarUrl = authorAvatar ? assetHref(authorAvatar) : '';
     context.roundRect(x, y, width, height, radius);
     context.clip();
     if (mode === 'contain') {
-      context.fillStyle = '#ffffff';
-      context.fillRect(x, y, width, height);
       const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
       const drawWidth = image.naturalWidth * scale;
       const drawHeight = image.naturalHeight * scale;
@@ -220,19 +218,30 @@ const authorAvatarUrl = authorAvatar ? assetHref(authorAvatar) : '';
       ]);
 
       if (logo) {
-        roundedImage(context, logo, 72, 60, 64, 64, 17, 'contain');
+        roundedImage(context, logo, 72, 60, 58, 58, 0, 'contain');
       }
       context.fillStyle = '#ffffff';
       context.font = '700 27px system-ui, sans-serif';
-      context.fillText('蓝桥工作室', 154, 102);
+      context.fillText('蓝桥工作室', 148, 99);
 
       context.fillStyle = 'rgba(255, 255, 255, 0.14)';
       context.beginPath();
-      context.roundRect(56, 158, 968, 1040, 44);
+      context.roundRect(56, 158, 968, 1136, 44);
       context.fill();
 
       if (cover) {
         roundedImage(context, cover, 80, 182, 920, 490, 30);
+        context.save();
+        context.beginPath();
+        context.roundRect(80, 182, 920, 490, 30);
+        context.clip();
+        const coverMask = context.createLinearGradient(0, 430, 0, 672);
+        coverMask.addColorStop(0, 'rgba(4, 21, 53, 0)');
+        coverMask.addColorStop(0.64, 'rgba(4, 38, 91, 0.46)');
+        coverMask.addColorStop(1, 'rgba(4, 48, 116, 0.96)');
+        context.fillStyle = coverMask;
+        context.fillRect(80, 390, 920, 282);
+        context.restore();
       } else {
         context.fillStyle = 'rgba(255, 255, 255, 0.1)';
         context.beginPath();
@@ -245,28 +254,31 @@ const authorAvatarUrl = authorAvatar ? assetHref(authorAvatar) : '';
         context.shadowColor = 'rgba(0, 20, 55, 0.28)';
         context.shadowBlur = 28;
         context.shadowOffsetY = 12;
-        roundedImage(context, icon, 104, 600, 154, 154, 34);
+        roundedImage(context, icon, 104, 580, 154, 154, 34);
         context.restore();
       }
 
       context.fillStyle = '#ffffff';
       context.font = '800 58px system-ui, sans-serif';
-      wrapText(context, title, 292, 660, 640, 68, 2);
+      wrapText(context, title, 292, 680, 640, 68, 2);
 
       context.fillStyle = 'rgba(255, 255, 255, 0.76)';
       context.font = '28px system-ui, sans-serif';
-      wrapText(context, description, 104, 824, 850, 42, 2);
+      wrapText(context, description, 104, 808, 850, 42, 2);
 
       if (authorAvatar) {
-        roundedImage(context, authorAvatar, 104, 930, 58, 58, 29);
+        roundedImage(context, authorAvatar, 104, 895, 58, 58, 29);
       }
       context.fillStyle = 'rgba(255, 255, 255, 0.72)';
       context.font = '24px system-ui, sans-serif';
       context.fillText(
         `作者 · ${author}`,
         authorAvatar ? 180 : 104,
-        authorAvatar ? 968 : 958
+        authorAvatar ? 933 : 925
       );
+
+      context.fillStyle = 'rgba(255, 255, 255, 0.14)';
+      context.fillRect(104, 976, 872, 2);
 
       const qrDataUrl = await QRCode.toDataURL(url, {
         width: 220,
@@ -278,17 +290,17 @@ const authorAvatarUrl = authorAvatar ? assetHref(authorAvatar) : '';
       if (qrImage) {
         context.fillStyle = '#ffffff';
         context.beginPath();
-        context.roundRect(724, 982, 276, 276, 26);
+        context.roundRect(724, 1000, 276, 276, 26);
         context.fill();
-        context.drawImage(qrImage, 752, 1010, 220, 220);
+        context.drawImage(qrImage, 752, 1028, 220, 220);
       }
 
       context.fillStyle = '#ffffff';
       context.font = '700 25px system-ui, sans-serif';
-      context.fillText('扫码查看作品', 104, 1128);
+      context.fillText('扫码查看作品', 104, 1100);
       context.fillStyle = 'rgba(255, 255, 255, 0.62)';
       context.font = '21px system-ui, sans-serif';
-      context.fillText(new URL(url).host, 104, 1166);
+      context.fillText(new URL(url).host, 104, 1138);
     };
 
     trigger?.addEventListener('click', async () => {

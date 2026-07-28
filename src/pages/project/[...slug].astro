@@ -146,7 +146,15 @@ const dateLabel = modifiedAt.getTime() > 0
     padding-top: 40px;
   }
 
+  .project-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0 32px;
+  }
+
   .back-link {
+    grid-column: 1 / -1;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -202,8 +210,10 @@ const dateLabel = modifiedAt.getTime() > 0
   .project-actions {
     display: flex;
     flex-wrap: wrap;
+    grid-column: 2;
+    justify-content: end;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 0;
   }
 
   .button-download {
@@ -355,7 +365,12 @@ const dateLabel = modifiedAt.getTime() > 0
       padding-top: 18px;
     }
 
+    .project-hero {
+      grid-template-columns: 1fr;
+    }
+
     .back-link {
+      grid-column: 1;
       margin-bottom: 16px;
       font-size: 0.86rem;
     }
@@ -381,6 +396,7 @@ const dateLabel = modifiedAt.getTime() > 0
 
     .project-actions {
       display: grid;
+      grid-column: 1;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       margin-top: 16px;
