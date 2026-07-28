@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { House, Info, LayoutGrid, Menu, Search, X } from '@lucide/astro';
+import { House, Info, LayoutGrid, Menu, X } from '@lucide/astro';
 import { siteInfo } from '../data/site';
 import { assetHref, href } from '../lib/urls';
 
@@ -69,12 +69,6 @@ const shareImage = new URL(assetHref(image), Astro.site ?? Astro.url.origin).hre
           <a href={href('/category/all')}><LayoutGrid size={16} aria-hidden="true" />全部作品</a>
           <a href={href('/about')}><Info size={16} aria-hidden="true" />关于工作室</a>
         </nav>
-
-        <form class="header-search" action={href('/search')} role="search">
-          <label class="sr-only" for="header-search-input">搜索作品</label>
-          <input id="header-search-input" name="q" type="search" placeholder="搜索作品" />
-          <button type="submit"><Search size={15} aria-hidden="true" /><span>搜索</span></button>
-        </form>
       </div>
     </header>
 

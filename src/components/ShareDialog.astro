@@ -1,15 +1,28 @@
 ---
-import { Copy, Download, Link2, Send, Share2 } from '@lucide/astro';
+import { Copy, Send, Share2 } from '@lucide/astro';
 import { assetHref } from '../lib/urls';
 
 interface Props {
   title: string;
   description: string;
   image?: string;
+  icon?: string;
+  author: string;
+  authorAvatar?: string;
 }
 
-const { title, description, image = '/brand/banner-light-16x9.webp' } = Astro.props;
+const {
+  title,
+  description,
+  image = '/brand/banner-light-16x9.webp',
+  icon = '/brand/mark.webp',
+  author,
+  authorAvatar = ''
+} = Astro.props;
 const imageUrl = assetHref(image);
+const iconUrl = assetHref(icon);
+const logoUrl = assetHref('/brand/mark.webp');
+const authorAvatarUrl = authorAvatar ? assetHref(authorAvatar) : '';
 ---
 
 <button class="button button-secondary" type="button" data-share-open>
@@ -22,36 +35,30 @@ const imageUrl = assetHref(image);
   data-share-title={title}
   data-share-description={description}
   data-share-image={imageUrl}
+  data-share-icon={iconUrl}
+  data-share-logo={logoUrl}
+  data-share-author={author}
+  data-share-author-avatar={authorAvatarUrl}
 >
   <div class="share-dialog-head">
-    <div>
-      <span class="eyebrow">分享</span>
-      <h2>分享{title}</h2>
-    </div>
+    <h2>分享{title}</h2>
     <button class="dialog-close" type="button" data-share-close aria-label="关闭">×</button>
   </div>
 
-  <section class="share-panel">
-    <label>格式化链接</label>
+  <section class="share-panel share-text-panel">
     <div class="share-link-preview" data-share-text></div>
     <div class="share-actions">
       <button class="button button-secondary" type="button" data-copy-link>
-        <Copy size={17} aria-hidden="true" />复制链接文案
-      </button>
-      <button class="button button-secondary" type="button" data-share-link>
-        <Link2 size={17} aria-hidden="true" />分享链接
+        <Copy size={17} aria-hidden="true" />复制文本
       </button>
     </div>
   </section>
 
-  <section class="share-panel">
-    <canvas class="share-card-canvas" width="1200" height="630" data-share-card></canvas>
+  <section class="share-panel share-image-panel">
+    <canvas class="share-card-canvas" width="1080" height="1350" data-share-card></canvas>
     <div class="share-actions">
       <button class="button button-primary" type="button" data-save-share-image>
-        <Send size={17} aria-hidden="true" />保存并分享图片
-      </button>
-      <button class="button button-secondary" type="button" data-save-image>
-        <Download size={17} aria-hidden="true" />仅保存图片
+        <Send size={18} aria-hidden="true" />分享图片
       </button>
     </div>
   </section>
@@ -77,12 +84,21 @@ const imageUrl = assetHref(image);
     const lines: string[] = [];
     let line = '';
 
-    for (const character of characters) {
+    for (const [index, character] of characters.entries()) {
       const next = line + character;
       if (context.measureText(next).width > maxWidth && line) {
         lines.push(line);
         line = character;
-        if (lines.length === maxLines - 1) break;
+        if (lines.length === maxLines - 1) {
+          const remaining = index < characters.length - 1;
+          if (remaining) {
+            while (context.measureText(`${line}…`).width > maxWidth && line.length > 1) {
+              line = line.slice(0, -1);
+            }
+            line += '…';
+          }
+          break;
+        }
       } else {
         line = next;
       }
@@ -101,6 +117,66 @@ const imageUrl = assetHref(image);
     });
   }
 
+  function roundedImage(
+    context: CanvasRenderingContext2D,
+    image: HTMLImageElement,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+    mode: 'cover' | 'contain' = 'cover'
+  ) {
+    const sourceRatio = image.naturalWidth / image.naturalHeight;
+    const targetRatio = width / height;
+    let sourceWidth = image.naturalWidth;
+    let sourceHeight = image.naturalHeight;
+    let sourceX = 0;
+    let sourceY = 0;
+
+    if (mode === 'cover') {
+      if (sourceRatio > targetRatio) {
+        sourceWidth = image.naturalHeight * targetRatio;
+        sourceX = (image.naturalWidth - sourceWidth) / 2;
+      } else {
+        sourceHeight = image.naturalWidth / targetRatio;
+        sourceY = (image.naturalHeight - sourceHeight) / 2;
+      }
+    }
+
+    context.save();
+    context.beginPath();
+    context.roundRect(x, y, width, height, radius);
+    context.clip();
+    if (mode === 'contain') {
+      context.fillStyle = '#ffffff';
+      context.fillRect(x, y, width, height);
+      const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+      const drawWidth = image.naturalWidth * scale;
+      const drawHeight = image.naturalHeight * scale;
+      context.drawImage(
+        image,
+        x + (width - drawWidth) / 2,
+        y + (height - drawHeight) / 2,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      context.drawImage(
+        image,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        x,
+        y,
+        width,
+        height
+      );
+    }
+    context.restore();
+  }
+
   for (const dialog of dialogs) {
     const trigger = dialog.previousElementSibling as HTMLButtonElement | null;
     const shareTextElement = dialog.querySelector<HTMLElement>('[data-share-text]');
@@ -109,6 +185,10 @@ const imageUrl = assetHref(image);
     const title = dialog.dataset.shareTitle ?? document.title;
     const description = dialog.dataset.shareDescription ?? '';
     const imageSrc = dialog.dataset.shareImage ?? '';
+    const iconSrc = dialog.dataset.shareIcon ?? '';
+    const logoSrc = dialog.dataset.shareLogo ?? '';
+    const author = dialog.dataset.shareAuthor ?? '';
+    const authorAvatarSrc = dialog.dataset.shareAuthorAvatar ?? '';
 
     const buildAssets = async () => {
       const url = window.location.href;
@@ -117,26 +197,79 @@ const imageUrl = assetHref(image);
 
       const context = cardCanvas.getContext('2d');
       if (!context) return;
-      context.fillStyle = '#f2f7ff';
-      context.fillRect(0, 0, 1200, 630);
+      const gradient = context.createLinearGradient(0, 0, 1080, 1350);
+      gradient.addColorStop(0, '#041535');
+      gradient.addColorStop(0.58, '#0757d3');
+      gradient.addColorStop(1, '#28a6ff');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 1080, 1350);
 
-      context.fillStyle = '#0757d3';
-      context.fillRect(0, 0, 18, 630);
-      context.fillStyle = '#0d1c38';
-      context.font = '700 58px system-ui, sans-serif';
-      wrapText(context, title, 78, 142, 690, 72, 2);
-      context.fillStyle = '#4b5d78';
-      context.font = '30px system-ui, sans-serif';
-      wrapText(context, description, 78, 300, 680, 46, 3);
-      context.fillStyle = '#0757d3';
-      context.font = '700 25px system-ui, sans-serif';
-      context.fillText('蓝桥工作室作品集', 78, 536);
-      context.fillStyle = '#6c7d96';
-      context.font = '21px system-ui, sans-serif';
-      context.fillText(new URL(url).host, 78, 574);
+      context.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      context.beginPath();
+      context.arc(970, 140, 270, 0, Math.PI * 2);
+      context.fill();
+      context.beginPath();
+      context.arc(70, 1280, 240, 0, Math.PI * 2);
+      context.fill();
+
+      const [cover, icon, logo, authorAvatar] = await Promise.all([
+        loadImage(imageSrc),
+        loadImage(iconSrc),
+        loadImage(logoSrc),
+        loadImage(authorAvatarSrc)
+      ]);
+
+      if (logo) {
+        roundedImage(context, logo, 72, 60, 64, 64, 17, 'contain');
+      }
+      context.fillStyle = '#ffffff';
+      context.font = '700 27px system-ui, sans-serif';
+      context.fillText('蓝桥工作室', 154, 102);
+
+      context.fillStyle = 'rgba(255, 255, 255, 0.14)';
+      context.beginPath();
+      context.roundRect(56, 158, 968, 1040, 44);
+      context.fill();
+
+      if (cover) {
+        roundedImage(context, cover, 80, 182, 920, 490, 30);
+      } else {
+        context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        context.beginPath();
+        context.roundRect(80, 182, 920, 490, 30);
+        context.fill();
+      }
+
+      if (icon) {
+        context.save();
+        context.shadowColor = 'rgba(0, 20, 55, 0.28)';
+        context.shadowBlur = 28;
+        context.shadowOffsetY = 12;
+        roundedImage(context, icon, 104, 600, 154, 154, 34);
+        context.restore();
+      }
+
+      context.fillStyle = '#ffffff';
+      context.font = '800 58px system-ui, sans-serif';
+      wrapText(context, title, 292, 660, 640, 68, 2);
+
+      context.fillStyle = 'rgba(255, 255, 255, 0.76)';
+      context.font = '28px system-ui, sans-serif';
+      wrapText(context, description, 104, 824, 850, 42, 2);
+
+      if (authorAvatar) {
+        roundedImage(context, authorAvatar, 104, 930, 58, 58, 29);
+      }
+      context.fillStyle = 'rgba(255, 255, 255, 0.72)';
+      context.font = '24px system-ui, sans-serif';
+      context.fillText(
+        `作者 · ${author}`,
+        authorAvatar ? 180 : 104,
+        authorAvatar ? 968 : 958
+      );
 
       const qrDataUrl = await QRCode.toDataURL(url, {
-        width: 260,
+        width: 220,
         margin: 2,
         errorCorrectionLevel: 'H',
         color: { dark: '#0757d3', light: '#ffffff' }
@@ -145,23 +278,17 @@ const imageUrl = assetHref(image);
       if (qrImage) {
         context.fillStyle = '#ffffff';
         context.beginPath();
-        context.roundRect(844, 152, 292, 326, 28);
+        context.roundRect(724, 982, 276, 276, 26);
         context.fill();
-        context.drawImage(qrImage, 860, 168, 260, 260);
-        context.fillStyle = '#4b5d78';
-        context.font = '20px system-ui, sans-serif';
-        context.textAlign = 'center';
-        context.fillText('扫码查看作品', 990, 454);
-        context.textAlign = 'left';
+        context.drawImage(qrImage, 752, 1010, 220, 220);
       }
 
-      const cover = await loadImage(imageSrc);
-      if (cover) {
-        context.save();
-        context.globalAlpha = 0.08;
-        context.drawImage(cover, 630, -40, 570, 710);
-        context.restore();
-      }
+      context.fillStyle = '#ffffff';
+      context.font = '700 25px system-ui, sans-serif';
+      context.fillText('扫码查看作品', 104, 1128);
+      context.fillStyle = 'rgba(255, 255, 255, 0.62)';
+      context.font = '21px system-ui, sans-serif';
+      context.fillText(new URL(url).host, 104, 1166);
     };
 
     trigger?.addEventListener('click', async () => {
@@ -179,17 +306,6 @@ const imageUrl = assetHref(image);
       if (feedback) feedback.textContent = '链接文案已复制。';
     });
 
-    dialog.querySelector('[data-share-link]')?.addEventListener('click', async () => {
-      const url = window.location.href;
-      const text = `【${title}，${description}，${url}】`;
-      if (navigator.share) {
-        await navigator.share({ title, text, url });
-      } else {
-        await navigator.clipboard.writeText(text);
-        if (feedback) feedback.textContent = '链接文案已复制，可直接粘贴分享。';
-      }
-    });
-
     const saveCanvas = () => {
       if (!cardCanvas) return;
       const link = document.createElement('a');
@@ -198,14 +314,8 @@ const imageUrl = assetHref(image);
       link.click();
     };
 
-    dialog.querySelector('[data-save-image]')?.addEventListener('click', () => {
-      saveCanvas();
-      if (feedback) feedback.textContent = '分享图片已保存。';
-    });
-
     dialog.querySelector('[data-save-share-image]')?.addEventListener('click', async () => {
       if (!cardCanvas) return;
-      saveCanvas();
       const blob = await new Promise<Blob | null>((resolve) => cardCanvas.toBlob(resolve, 'image/png'));
       if (!blob) return;
       const file = new File([blob], `${title}-分享图.png`, { type: 'image/png' });
@@ -215,9 +325,10 @@ const imageUrl = assetHref(image);
           text: `【${title}，${description}，${window.location.href}】`,
           files: [file]
         });
-        if (feedback) feedback.textContent = '图片已保存并打开分享。';
-      } else if (feedback) {
-        feedback.textContent = '图片已保存，可从相册或下载中分享。';
+        if (feedback) feedback.textContent = '已打开图片分享。';
+      } else {
+        saveCanvas();
+        if (feedback) feedback.textContent = '当前浏览器不支持图片分享，已保存图片。';
       }
     });
   }

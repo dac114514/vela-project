@@ -44,7 +44,7 @@ const { name, projects } = Astro.props;
   <section class="container listing-content">
     <div class="project-grid">
       {projects.map((project) => (
-        <ProjectCard project={project} showCategory={name === '全部作品'} />
+        <ProjectCard project={project} />
       ))}
     </div>
   </section>

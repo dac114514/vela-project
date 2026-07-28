@@ -1,78 +1,52 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { Sparkles, UserPlus } from '@lucide/astro';
+import { ArrowUpRight, UserPlus } from '@lucide/astro';
 import { siteInfo } from '../data/site';
-import { getCategoryGroups, getProjects } from '../lib/projects';
+import { getCategoryGroups } from '../lib/projects';
 import { assetHref, href } from '../lib/urls';
 
 const groups = await getCategoryGroups();
-const projects = await getProjects();
 const perSection = 6;
 ---
 
 <BaseLayout>
-  <section class="home-hero">
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow">蓝桥工作室作品集</span>
-        <h1>发现好用、有趣的小程序</h1>
-        <p>{siteInfo.intro}</p>
-
-        <form class="hero-search" action={href('/search')} role="search">
-          <label class="sr-only" for="hero-search-input">搜索作品名称、作者或包名</label>
-          <input id="hero-search-input" name="q" type="search" placeholder="搜索作品名称、作者或包名" />
-          <button type="submit">搜索作品</button>
-        </form>
-
-        <nav class="category-nav" aria-label="作品分类">
-          <a href={href('/category/all')}>全部作品 <span>{projects.length}</span></a>
-          {groups.map((group) => (
-            <a href={href(`/category/${group.name}`)}>{group.name} <span>{group.items.length}</span></a>
-          ))}
-        </nav>
-      </div>
-
-      <div class="brand-poster">
-        <picture>
-          <source
-            srcset={assetHref('/brand/banner-dark-16x9.webp')}
-            media="(prefers-color-scheme: dark)"
-          />
-          <img
-            src={assetHref('/brand/banner-light-16x9.webp')}
-            alt="蓝桥工作室"
-            width="1672"
-            height="941"
-          />
-        </picture>
-      </div>
+  <section class="banner-section" aria-label="推荐内容">
+    <div class="container banner-rail">
+      {siteInfo.banners.map((banner) => (
+        banner.kind === 'recruitment' ? (
+          <a class="market-banner recruitment-banner" href={href(banner.href)}>
+            <div class="banner-copy">
+              <span>{banner.eyebrow}</span>
+              <h2>{banner.title}</h2>
+              <p>{banner.description}</p>
+              <strong>{banner.action}<ArrowUpRight size={16} aria-hidden="true" /></strong>
+            </div>
+            <div class="recruitment-mark" aria-hidden="true">
+              <UserPlus size={54} stroke-width={1.6} />
+            </div>
+          </a>
+        ) : (
+          <a class="market-banner image-banner" href={href(banner.href)}>
+            <img src={assetHref(banner.image)} alt={banner.alt} />
+          </a>
+        )
+      ))}
     </div>
   </section>
-
-  <aside class="container recruitment-note" aria-label="工作室招募提示">
-    <span class="recruitment-icon"><UserPlus size={21} aria-hidden="true" /></span>
-    <div>
-      <strong><Sparkles size={15} aria-hidden="true" />寻找新的创作者伙伴</strong>
-      <p>蓝桥工作室期待志同道合的新成员。想一起把好点子做成作品，欢迎联系纯水机。</p>
-    </div>
-  </aside>
 
   <div class="container category-sections">
     {groups.map((group) => (
       <section class="category-section" aria-labelledby={`category-${group.name}`}>
         <div class="section-heading">
-          <div>
-            <span class="eyebrow">作品分类</span>
-            <h2 id={`category-${group.name}`}>{group.name}</h2>
-          </div>
+          <h2 id={`category-${group.name}`}>{group.name}</h2>
           <a class="section-link" href={href(`/category/${group.name}`)}>
-            查看全部 {group.items.length} 件作品
+            查看全部
           </a>
         </div>
         <div class="project-grid">
           {group.items.slice(0, perSection).map((project) => (
-            <ProjectCard project={project} showCategory={false} />
+            <ProjectCard project={project} />
           ))}
         </div>
       </section>
@@ -81,227 +55,172 @@ const perSection = 6;
 </BaseLayout>
 
 <style>
-  .home-hero {
-    padding: 52px 0 24px;
+  .banner-section {
+    padding-top: 28px;
   }
 
-  .hero-grid {
+  .banner-rail {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(380px, 500px);
-    align-items: center;
-    gap: 48px;
+    grid-auto-columns: min(88%, 980px);
+    grid-auto-flow: column;
+    gap: 16px;
+    padding-block: 4px 18px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-200) transparent;
   }
 
-  .hero-copy h1 {
-    max-width: 620px;
-    margin: 0;
-    font-size: clamp(2.5rem, 5vw, 4.25rem);
-    line-height: 1.05;
-    letter-spacing: -0.05em;
-  }
-
-  .hero-copy > p {
-    max-width: 650px;
-    margin: 26px 0;
-    color: var(--ink-600);
-    font-size: clamp(1rem, 2.2vw, 1.2rem);
-  }
-
-  .hero-search {
-    display: flex;
-    max-width: 650px;
-    gap: 8px;
-    padding: 7px;
-    border: 1px solid var(--line);
-    border-radius: 17px;
-    background: var(--surface);
-    box-shadow: var(--shadow-small);
-  }
-
-  .hero-search input {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    outline: 0;
-    padding: 10px 12px;
-    color: var(--ink-950);
-    background: transparent;
-  }
-
-  .hero-search button {
-    flex: 0 0 auto;
-    border: 0;
-    border-radius: 12px;
-    padding: 10px 20px;
-    background: var(--brand-600);
-    color: white;
-    font-weight: 800;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  .category-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 18px;
-  }
-
-  .category-nav a {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 7px 11px 7px 14px;
-    background: color-mix(in srgb, var(--surface) 82%, transparent);
-    color: var(--ink-800);
-    font-size: 0.84rem;
-    font-weight: 700;
-  }
-
-  .category-nav span {
-    display: grid;
-    place-items: center;
-    min-width: 23px;
-    height: 23px;
-    border-radius: 999px;
-    background: var(--brand-100);
-    color: var(--brand-700);
-    font-size: 0.72rem;
-  }
-
-  .brand-poster {
+  .market-banner {
     position: relative;
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    background: var(--surface);
+    display: block;
+    aspect-ratio: 3 / 1;
+    min-height: 230px;
+    border: 1px solid color-mix(in srgb, var(--line) 76%, transparent);
+    border-radius: 26px;
     box-shadow: var(--shadow-small);
     overflow: hidden;
+    scroll-snap-align: start;
   }
 
-  .brand-poster picture {
-    display: block;
+  .recruitment-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 34%;
+    align-items: center;
+    padding: clamp(28px, 5vw, 62px);
+    color: white;
+    background:
+      radial-gradient(circle at 84% 26%, rgba(105, 185, 255, 0.42), transparent 30%),
+      linear-gradient(125deg, #061b43 0%, #0757d3 58%, #0b88f5 100%);
   }
 
-  .brand-poster img {
+  .banner-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .banner-copy > span {
+    font-size: 0.8rem;
+    font-weight: 850;
+    letter-spacing: 0.14em;
+  }
+
+  .banner-copy h2 {
+    margin: 8px 0 6px;
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+  }
+
+  .banner-copy p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: clamp(0.86rem, 1.6vw, 1.05rem);
+  }
+
+  .banner-copy strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 18px;
+    font-size: 0.88rem;
+  }
+
+  .recruitment-mark {
+    display: grid;
+    place-items: center;
+    justify-self: end;
+    width: clamp(110px, 16vw, 188px);
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 38%;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.2);
+    transform: rotate(9deg);
+    backdrop-filter: blur(12px);
+  }
+
+  .recruitment-mark :global(svg) {
+    transform: rotate(-9deg);
+  }
+
+  .image-banner {
+    background: #061b43;
+  }
+
+  .image-banner img {
     display: block;
     width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: contain;
+    height: 100%;
+    object-fit: cover;
   }
 
   .category-sections {
-    padding-top: 20px;
-  }
-
-  .recruitment-note {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    align-items: center;
-    gap: 13px;
-    margin-top: 24px;
-    border: 1px solid var(--brand-200);
-    border-radius: 17px;
-    padding: 14px 16px;
-    background: color-mix(in srgb, var(--brand-50) 82%, var(--surface));
-  }
-
-  .recruitment-icon {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 13px;
-    background: var(--brand-600);
-    color: white;
-  }
-
-  .recruitment-note strong {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.94rem;
-  }
-
-  .recruitment-note p {
-    margin: 3px 0 0;
-    color: var(--ink-600);
-    font-size: 0.84rem;
+    padding-top: 5px;
   }
 
   .category-section {
-    padding-top: 58px;
+    padding-top: 34px;
   }
 
   .section-link {
-    border-bottom: 1px solid currentColor;
     color: var(--brand-600);
     font-size: 0.9rem;
     font-weight: 800;
   }
 
-  @media (max-width: 900px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .brand-poster {
-      max-width: 680px;
-    }
-  }
-
   @media (max-width: 640px) {
-    .home-hero {
-      padding-top: 26px;
+    .banner-section {
+      padding-top: 16px;
     }
 
-    .hero-copy h1 {
-      font-size: clamp(2.15rem, 11vw, 3rem);
+    .banner-rail {
+      grid-auto-columns: 92%;
+      gap: 10px;
+      padding-bottom: 12px;
     }
 
-    .hero-grid {
-      gap: 26px;
+    .market-banner {
+      min-height: 190px;
+      aspect-ratio: 4 / 2.4;
+      border-radius: 20px;
     }
 
-    .hero-copy > p {
-      margin: 14px 0 18px;
-      font-size: 0.96rem;
+    .recruitment-banner {
+      grid-template-columns: minmax(0, 1fr) 92px;
+      gap: 8px;
+      padding: 24px;
     }
 
-    .hero-search {
-      border-radius: 15px;
+    .banner-copy h2 {
+      font-size: clamp(1.55rem, 7vw, 2rem);
     }
 
-    .hero-search button {
-      padding-inline: 15px;
+    .banner-copy p {
+      display: none;
     }
 
-    .brand-poster {
-      border-radius: 18px;
+    .banner-copy strong {
+      margin-top: 14px;
     }
 
-    .recruitment-note {
-      grid-template-columns: 38px minmax(0, 1fr);
-      margin-top: 12px;
-      border-radius: 15px;
-      padding: 12px;
+    .recruitment-mark {
+      width: 84px;
+      border-radius: 30px;
     }
 
-    .recruitment-icon {
+    .recruitment-mark :global(svg) {
       width: 38px;
-      height: 38px;
-      border-radius: 11px;
-    }
-
-    .recruitment-note p {
-      font-size: 0.79rem;
-      line-height: 1.5;
     }
 
     .category-section {
-      padding-top: 38px;
+      padding-top: 26px;
+    }
+
+    .category-section :global(.section-heading) {
+      align-items: center;
+      flex-direction: row;
     }
   }
 </style>

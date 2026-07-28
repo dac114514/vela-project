@@ -4,6 +4,7 @@ import { ArrowLeft, Clock, Download, Package, Tag, User } from '@lucide/astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScreenshotRail from '../../components/ScreenshotRail.astro';
 import ShareDialog from '../../components/ShareDialog.astro';
+import { siteInfo } from '../../data/site';
 import { getProjects, type ProjectRecord } from '../../lib/projects';
 import { assetHref, href } from '../../lib/urls';
 
@@ -79,6 +80,9 @@ const dateLabel = modifiedAt.getTime() > 0
           title={entry.data.title}
           description={entry.data.description}
           image={entry.data.cover ?? entry.data.icon}
+          icon={entry.data.icon}
+          author={entry.data.author}
+          authorAvatar={entry.data.author === siteInfo.author.name ? siteInfo.author.avatar : ''}
         />
       </div>
     </header>
