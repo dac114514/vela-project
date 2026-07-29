@@ -2,9 +2,9 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import rehypeBaseAssets from './src/lib/rehype-base-assets.mjs';
 
-const rawBase = process.env.BASE_PATH || '/vela-project';
+const rawBase = process.env.BASE_PATH || '/';
 const base = rawBase === '/' ? '/' : `/${rawBase.replace(/^\/|\/$/g, '')}`;
-const site = process.env.SITE_URL || 'https://dac114514.github.io';
+const site = process.env.SITE_URL || 'https://gallery.faster.us.kg';
 
 export default defineConfig({
   site,
