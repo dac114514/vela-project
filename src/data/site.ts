@@ -10,7 +10,7 @@ export const siteInfo = {
       eyebrow: '加入蓝桥',
       title: '寻找志同道合的同伴',
       action: '了解招募',
-      href: 'https://user.qzone.qq.com/1252326240',
+      href: 'https://recruit.faster.us.kg/',
       qq: '1252326240'
     }
   ] as Array<
